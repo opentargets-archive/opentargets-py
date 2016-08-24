@@ -1,34 +1,45 @@
 import json
 import logging
 from collections import namedtuple
-
 import requests
+from  httpcache import CachingHTTPAdapter
 import time
-from cachetools import cached, LRUCache
 
+
+
+logger = logging.getLogger(__name__)
 
 class Response(object):
     ''' Handler for responses from the api'''
 
     def __init__(self, response, content_type = 'json'):
+        self._logger =logging.getLogger(__name__)
         if content_type == 'json':
             parsed_response = response.json()
-            self.data = [self._json_object_hook(e) for e in parsed_response['data']]
+            self.data = [self._dict_to_namedtuple(e) for e in parsed_response['data']]
             del parsed_response['data']
             if 'from' in parsed_response:
                 parsed_response['from_']= parsed_response['from']
             del parsed_response['from']
-            self.info = self._json_object_hook(parsed_response, classname = 'ResultInfo')
+            self.info = self._dict_to_namedtuple(parsed_response, classname ='ResultInfo')
+            self._headers = response.headers
+            usage = dict(usage_limit_1h = self._headers['X-Usage-Limit-1h'],
+                         usage_remaining_1h =self._headers['X-Usage-Remaining-1h'],
+                         usage_limit_10s=self._headers['X-Usage-Limit-10s'],
+                         usage_remaining_10s=self._headers['X-Usage-Remaining-10s'],
+                         )
+            self.usage = self._dict_to_namedtuple(usage, classname ='UsageInfo')
+
         else:
             raise AttributeError("content-type not supported")
 
     @staticmethod
-    def _json_object_hook(d, classname = 'Result'):
-        return namedtuple(classname, d.keys(),rename=True)(*d.values())
+    def _dict_to_namedtuple(d, classname ='Result', rename = True):
+        return namedtuple(classname, d.keys(),rename=rename)(*d.values())
 
     @staticmethod
-    def json2obj(data):
-        return json.loads(data, object_hook=Response._json_object_hook)
+    def _json2obj(data):
+        return json.loads(data, object_hook=Response._dict_to_namedtuple)
 
 class Connection(object):
     '''
@@ -44,13 +55,16 @@ class Connection(object):
                  auth_app_name = None,
                  auth_secret = None,
                  ):
+        self._logger = logging.getLogger(__name__)
         self.host = host
         self.port = port
         self.api_version = api_version
         self.auth_app_name = auth_app_name
         self.auth_secret = auth_secret
         self.token = None
-        self._cache = LRUCache(maxsize=100)
+        self.session= requests.Session()
+        self.session.mount('http://', CachingHTTPAdapter())
+        self.session.mount('https://', CachingHTTPAdapter())
 
 
 
@@ -92,7 +106,7 @@ class Connection(object):
                       **kwargs):
 
         def call():
-            return requests.request(method,
+            return self.session.request(method,
                                     self._build_url(endpoint),
                                     params = params,
                                     data = data,
@@ -112,8 +126,9 @@ class Connection(object):
                 response = call()
                 status_code = response.status_code
                 if status_code == 429:
-                    print("TODO: get the right time from the header")
-                    time.sleep(1)
+                    retry_after = float(response.headers['Retry-After'])/1000.
+                    self._logger.warning('Usage allowance hit. Retrying in {} seconds'.format(retry_after))
+                    time.sleep(retry_after)
         else:
             response = call()
 
@@ -130,13 +145,29 @@ class Connection(object):
                 pass
         self.token = self.get_token()
 
-
-
-
 if __name__=='__main__':
     conn= Connection()
+
+    '''test cache'''
     print(conn._build_url('/public/search'))
+    start_time = time.time()
+    conn.get('/public/search', {'q':'braf'})
+    print(time.time()-start_time)
+    start_time = time.time()
+    conn.get('/public/search', {'q': 'braf'})
+    print(time.time()-start_time)
+    start_time = time.time()
+    conn.get('/public/search', {'q': 'braf'})
+    print(time.time()-start_time)
+    start_time = time.time()
+    conn.get('/public/search', {'q': 'braf'})
+    print(time.time()-start_time)
+    start_time = time.time()
+    conn.get('/public/search', {'q': 'braf'})
+    print(time.time()-start_time)
+    '''test response'''
     r=conn.get('/public/search', {'q':'braf'})
-    print r.info
+    print(r.info)
+    print(r.usage)
     for i,d in enumerate(r.data):
-        print (i,d.id, d.type, d.data['approved_symbol'])
+        print(i,d.id, d.type, d.data['approved_symbol'])
