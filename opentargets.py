@@ -4,6 +4,7 @@ from collections import namedtuple
 import requests
 from  httpcache import CachingHTTPAdapter
 import time
+import namedtupled
 
 
 VERSION=1.2
@@ -29,12 +30,7 @@ class Response(object):
             else:
                 self.data = parsed_response
             self._headers = response.headers
-            usage = dict(usage_limit_1h = self._headers['X-Usage-Limit-1h'],
-                         usage_remaining_1h =self._headers['X-Usage-Remaining-1h'],
-                         usage_limit_10s=self._headers['X-Usage-Limit-10s'],
-                         usage_remaining_10s=self._headers['X-Usage-Remaining-10s'],
-                         )
-            self.usage = self._dict_to_namedtuple(usage, classname ='UsageInfo')
+            self._parse_usage_data()
 
         else:
             raise AttributeError("content-type not supported")
@@ -44,8 +40,25 @@ class Response(object):
         return namedtuple(classname, d.keys(),rename=rename)(*d.values())
 
     @staticmethod
-    def _json2obj(data):
-        return json.loads(data, object_hook=Response._dict_to_namedtuple)
+    def _dict_to_nested_namedtuple(d, classname ='Result', ):
+        return namedtupled.map(d,classname)
+
+
+    def _parse_usage_data(self):
+        usage = dict(limit={'hour': int(self._headers['X-Usage-Limit-1h']),
+                            'seconds_10': int(self._headers['X-Usage-Limit-10s']),
+                            },
+                     remaining = {'hour': int(self._headers['X-Usage-Remaining-1h']),
+                                  'seconds_10': int(self._headers['X-Usage-Remaining-10s']),
+                                  },
+                     )
+        usage['remaining']['minimum'] =min((usage['remaining']['hour'], usage['remaining']['seconds_10']))
+
+        usage['exceeded'] = usage['remaining']['minimum'] < 0
+        self.usage = self._dict_to_nested_namedtuple(usage, classname='UsageInfo')
+        if self.usage.exceeded:
+            self._logger.warning('Fair Usage limit exceeded')
+
 
 class Connection(object):
     '''
@@ -169,6 +182,7 @@ if __name__=='__main__':
         print(time.time()-start_time, 'seconds')
     '''test response'''
     r=conn.get('/public/search', {'q':'braf'})
+    print(r.usage.remaining.minimum)
     print(r.info)
     print(r.usage)
     for i,d in enumerate(r.data):
