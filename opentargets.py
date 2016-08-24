@@ -6,8 +6,10 @@ from  httpcache import CachingHTTPAdapter
 import time
 
 
+VERSION=1.2
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 class Response(object):
     ''' Handler for responses from the api'''
@@ -16,12 +18,16 @@ class Response(object):
         self._logger =logging.getLogger(__name__)
         if content_type == 'json':
             parsed_response = response.json()
-            self.data = [self._dict_to_namedtuple(e) for e in parsed_response['data']]
-            del parsed_response['data']
-            if 'from' in parsed_response:
-                parsed_response['from_']= parsed_response['from']
-            del parsed_response['from']
-            self.info = self._dict_to_namedtuple(parsed_response, classname ='ResultInfo')
+            if isinstance(parsed_response, dict):
+                self.data = [self._dict_to_namedtuple(e) for e in parsed_response['data']]
+                del parsed_response['data']
+                if 'from' in parsed_response:
+                    parsed_response['from_'] = parsed_response['from']
+                    del parsed_response['from']
+                self.info = self._dict_to_namedtuple(parsed_response, classname='ResultInfo')
+
+            else:
+                self.data = parsed_response
             self._headers = response.headers
             usage = dict(usage_limit_1h = self._headers['X-Usage-Limit-1h'],
                          usage_remaining_1h =self._headers['X-Usage-Remaining-1h'],
@@ -65,6 +71,7 @@ class Connection(object):
         self.session= requests.Session()
         self.session.mount('http://', CachingHTTPAdapter())
         self.session.mount('https://', CachingHTTPAdapter())
+        self._test_version()
 
 
 
@@ -74,12 +81,12 @@ class Connection(object):
                                        self.api_version,
                                        endpoint,)
 
-    def get(self, endpoint, params):
+    def get(self, endpoint, params=None):
         return Response(self._make_request(endpoint,
                               params=params,
                               method='GET'))
 
-    def post(self, endpoint, data):
+    def post(self, endpoint, data=None):
         return Response(self._make_request(endpoint,
                                data=data,
                                method='POST'))
@@ -93,12 +100,12 @@ class Connection(object):
                                   )
 
     def get_token(self, expire = 10*60):
-        return json.loads(self._make_token_request(expire).data.decode('utf-8'))['token']
+        return self._make_token_request(expire).data['token']
 
     def _make_request(self,
                       endpoint,
-                      params = {},
-                      data = {},
+                      params = None,
+                      data = None,
                       method = "GET",
                       token = None,
                       headers = {},
@@ -145,26 +152,21 @@ class Connection(object):
                 pass
         self.token = self.get_token()
 
-if __name__=='__main__':
-    conn= Connection()
+    def _test_version(self):
+        remote_version = self.get('/public/utils/version').data
+        if remote_version != VERSION:
+            self._logger.warning('The remote server is running the API with version {}, but the client expected {}. They may not be compatible.'.format(remote_version, VERSION))
 
-    '''test cache'''
+
+if __name__=='__main__':
+    conn= Connection(host='https://mirror.targetvalidation.org')
+
     print(conn._build_url('/public/search'))
-    start_time = time.time()
-    conn.get('/public/search', {'q':'braf'})
-    print(time.time()-start_time)
-    start_time = time.time()
-    conn.get('/public/search', {'q': 'braf'})
-    print(time.time()-start_time)
-    start_time = time.time()
-    conn.get('/public/search', {'q': 'braf'})
-    print(time.time()-start_time)
-    start_time = time.time()
-    conn.get('/public/search', {'q': 'braf'})
-    print(time.time()-start_time)
-    start_time = time.time()
-    conn.get('/public/search', {'q': 'braf'})
-    print(time.time()-start_time)
+    '''test cache'''
+    for i in range(5):
+        start_time = time.time()
+        conn.get('/public/search', {'q':'braf'})
+        print(time.time()-start_time, 'seconds')
     '''test response'''
     r=conn.get('/public/search', {'q':'braf'})
     print(r.info)
