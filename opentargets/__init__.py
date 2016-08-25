@@ -1,6 +1,6 @@
 import logging
 
-from conn import Connection, IterableResult
+from opentargets.conn import Connection, IterableResult
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
