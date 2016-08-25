@@ -5,7 +5,7 @@ from conn import Connection, IterableResult
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-class OpenTargetClient(object):
+class OpenTargetsClient(object):
     '''
     main class to use to get data from the Open Targets REST API available at targetvalidation.org, or your private instance
     '''

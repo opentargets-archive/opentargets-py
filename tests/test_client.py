@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from opentargets import OpenTargetClient
+from opentargets import OpenTargetsClient
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -12,8 +12,8 @@ class OpenTargetClientTest(unittest.TestCase):
 
     def setUp(self):
 
-        self.client = OpenTargetClient()
-        self.http2_client = OpenTargetClient(use_http2=True)
+        self.client = OpenTargetsClient()
+        self.http2_client = OpenTargetsClient(use_http2=True)
 
     def tearDown(self):
         self.client.close()

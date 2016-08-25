@@ -21,9 +21,9 @@ QUICK START
 
 ```python
 
-from opentargets import OpenTargetClient
+from opentargets import OpenTargetsClient
 
-ot = OpenTargetClient()
+ot = OpenTargetsClient()
 
 search_result = ot.search('BRAF')
 print next(search_result)
