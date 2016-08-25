@@ -2,15 +2,15 @@
 Python client for the Open Targets REST API at targetvalidation.org
 
 
-Why should you use this client?
+Why should you use this client instead of the REST API directly?
 
 - Handles Authentication
-- Handles fair usage limits
-- Follow HTTP cache as set by the REST API
+- Handles fair usage limits transparently
+- Follows HTTP cache as set by the REST API
 - Experimental HTTP2 support for better performance (beware the client library is in alpha)
-- Supports automatic pagination
+- Supports automatic retrieval of paginated results with an iterator pattern
 - Include wrappers for public methods
-- Tools for the most common calls
+- Tools for the most common calls (E.g. get data for a target gene symbol even if you do not know its Ensembl Gene Id)
 
 This client is supported for Python 3.5 and upper.
 Works on lower version (including python 2) on a best effort basis.
