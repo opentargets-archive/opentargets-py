@@ -22,6 +22,7 @@ QUICK START
 ```python
 
 from opentargets import OpenTargetsClient
+from opentargets.conn import result_to_json
 
 ot = OpenTargetsClient()
 
@@ -36,7 +37,7 @@ a_for_disease = ot.get_associations_for_disease('cancer')
 
 e_for_target = ot.get_evidence_for_target('BRAF')
 for e in e_for_target:
-    print(e.id)
+    print(result_to_json(e))
 
 e_for_disease = ot.get_evidence_for_disease('medulloblastoma')
 

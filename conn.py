@@ -22,6 +22,10 @@ class HTTPMethods(object):
     PUT='PUT'
     DELETE='DELETE'
 
+def result_to_json(result, **kwargs):
+    '''transforms a result back to json. kwargs will be passed to json.dumps'''
+    return json.dumps(result._asdict(), **kwargs)
+
 class Response(object):
     ''' Handler for responses from the api'''
 
