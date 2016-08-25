@@ -263,6 +263,16 @@ class IterableResult(object):
         except:
             return 0
 
+    def __bool__(self):
+        return self.__len__() >0
+
+    def __nonzero__(self):
+        return self.__bool__()
+
+    def __str__(self):
+        data = str(self.data)
+        return data[:100] + (data[100:] and '...')
+
 if __name__=='__main__':
     conn= Connection(host='https://mirror.targetvalidation.org')
 
