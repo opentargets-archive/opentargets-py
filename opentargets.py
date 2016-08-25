@@ -15,6 +15,7 @@ class OpenTargetsClient(object):
     _get_associations_endpoint = '/public/association'
     _filter_evidence_endpoint = '/public/evidence/filter'
     _get_evidence_endpoint = '/public/evidence'
+    _stats_endpoint = '/public/utils/stats'
 
 
     def __init__(self,
@@ -111,5 +112,10 @@ class OpenTargetsClient(object):
             logger.debug('{} resolved to id {}'.format(disease, disease_id))
             results = self.filter_evidence(disease=disease_id)
         return results
+
+    def get_stats(self):
+        result = IterableResult(self.conn)
+        result(self._stats_endpoint)
+        return result
 
 

@@ -45,6 +45,8 @@ e_for_disease = ot.get_evidence_for_disease('medulloblastoma')
 
 print(ot.get_evidence('5cf863da265c32d112ff4fc3bfc25ab3')[0])
 
+print(ot.get_stats().info)
+
 ...
 
 ```

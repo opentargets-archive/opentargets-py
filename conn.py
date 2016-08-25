@@ -36,8 +36,11 @@ class Response(object):
         if content_type == 'json':
             parsed_response = response.json()
             if isinstance(parsed_response, dict):
-                self.data = [self._dict_to_namedtuple(e) for e in parsed_response['data']]
-                del parsed_response['data']
+                if 'data' in parsed_response:
+                    self.data = [self._dict_to_namedtuple(e) for e in parsed_response['data']]
+                    del parsed_response['data']
+                else:
+                    self.data = []
                 if 'from' in parsed_response:
                     parsed_response['from_'] = parsed_response['from']
                     del parsed_response['from']
@@ -45,6 +48,7 @@ class Response(object):
 
             else:
                 self.data = parsed_response
+                self.info = {}
             self._headers = response.headers
             self._parse_usage_data()
 

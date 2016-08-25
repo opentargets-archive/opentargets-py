@@ -126,3 +126,8 @@ class OpenTargetClientTest(unittest.TestCase):
         self.assertGreater(len(response), 0)
         result = next(response)
         self.assertEqual(result.disease['efo_info']['label'], disease_label)
+
+    def testGetStats(self):
+        response = self.client.get_stats()
+        self.assertEquals(len(response), 0)
+        print(response.info)
