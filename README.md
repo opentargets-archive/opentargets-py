@@ -27,7 +27,7 @@ from opentargets.conn import result_to_json
 ot = OpenTargetsClient()
 
 search_result = ot.search('BRAF')
-print next(search_result)
+print earch_result[0]
 
 a_for_target = ot.get_associations_for_target('BRAF')
 for a in a_for_target:
@@ -35,11 +35,15 @@ for a in a_for_target:
 
 a_for_disease = ot.get_associations_for_disease('cancer')
 
+print(ot.get_association('ENSG00000157764-EFO_0005803')[0])
+
 e_for_target = ot.get_evidence_for_target('BRAF')
 for e in e_for_target:
     print(result_to_json(e))
 
 e_for_disease = ot.get_evidence_for_disease('medulloblastoma')
+
+print(ot.get_evidence('5cf863da265c32d112ff4fc3bfc25ab3')[0])
 
 ...
 

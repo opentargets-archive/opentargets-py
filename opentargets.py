@@ -38,11 +38,16 @@ class OpenTargetsClient(object):
         result(self._search_endpoint,params=kwargs)
         return result
 
+    def get_association(self,association_id, **kwargs):
+        kwargs['id']= association_id
+        result = IterableResult(self.conn)
+        result(self._get_associations_endpoint, params=kwargs)
+        return result
+
     def filter_associations(self,**kwargs):
         result = IterableResult(self.conn)
         result(self._filter_associations_endpoint, params=kwargs)
         return result
-
 
     def get_associations_for_target(self, target, **kwargs):
         if not isinstance(target, str):
@@ -69,6 +74,12 @@ class OpenTargetsClient(object):
             logger.debug('{} resolved to id {}'.format(disease, disease_id))
             results = self.filter_associations(disease=disease_id)
         return results
+
+    def get_evidence(self, evidence_id, **kwargs):
+        kwargs['id']= evidence_id
+        result = IterableResult(self.conn)
+        result(self._get_evidence_endpoint, params=kwargs)
+        return result
 
     def filter_evidence(self,**kwargs):
         result = IterableResult(self.conn)

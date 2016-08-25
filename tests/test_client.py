@@ -78,13 +78,16 @@ class OpenTargetClientTest(unittest.TestCase):
     #     self.assertEqual(total_results, c)
     #     print(total_results, c)
 
+    def testGetAssociation(self):
+        association_id = "ENSG00000157764-EFO_0005803"
+        response = self.client.get_association(association_id)
+        self.assertEquals(len(response), 1)
+        self.assertEquals(association_id, response[0].id)
+
     def testFilterAssociations(self):
         response = self.client.filter_associations()
         self.assertGreater(len(response), 0)
-        print(response, len(response))
-
         result = next(response)
-        print(result)
 
     def testGetAssociationsForTarget(self):
         target_symbol = 'BRAF'
@@ -100,10 +103,15 @@ class OpenTargetClientTest(unittest.TestCase):
         result = next(response)
         self.assertEqual(result.disease['efo_info']['label'], disease_label)
 
+    def testGetEvidence(self):
+        evidence_id = "5cf863da265c32d112ff4fc3bfc25ab3"
+        response = self.client.get_evidence(evidence_id)
+        self.assertEquals(len(response), 1)
+        self.assertEquals(evidence_id, response[0].id)
+
     def testFilterEvidence(self):
         response = self.client.filter_evidence()
         self.assertGreater(len(response), 0)
-        result = next(response)
 
     def testGetEvidenceForTarget(self):
         target_symbol = 'BRAF'

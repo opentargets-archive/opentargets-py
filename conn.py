@@ -1,6 +1,8 @@
 import json
 import logging
 from collections import namedtuple
+from itertools import islice
+
 import requests
 from cachecontrol import CacheControl
 from hyper.contrib import HTTP20Adapter
@@ -90,6 +92,11 @@ class Response(object):
         self.usage = self._dict_to_nested_namedtuple(usage, classname='UsageInfo')
         if self.usage.exceeded:
             self._logger.warning('Fair Usage limit exceeded')
+    def __len__(self):
+        try:
+            return self.info.total
+        except:
+            return len(self.data)
 
 
 class Connection(object):
@@ -230,12 +237,12 @@ class IterableResult(object):
         self._kwargs = kwargs
         response = self._make_call()
         self.info = response.info
-        self.data = response.data
+        self._data = response.data
         self.current = 0
         try:
             self.total = int(self.info.total)
         except:
-            self.total = len(self.data)
+            self.total = len(self._data)
 
 
 
@@ -252,10 +259,10 @@ class IterableResult(object):
 
     def __next__(self):
         if self.current < self.total:
-            if not self.data:
+            if not self._data:
                 self._kwargs['from'] = self.current
-            self.data = self._make_call().data
-            d = self.data.pop(0)
+            self._data = self._make_call().data
+            d = self._data.pop(0)
             self.current+=1
             return d
         else:
@@ -274,8 +281,15 @@ class IterableResult(object):
         return self.__bool__()
 
     def __str__(self):
-        data = str(self.data)
+        data = str(self._data)
         return data[:100] + (data[100:] and '...')
+
+    def __getitem__(self, x):
+        if type(x) is slice:
+            return list(islice(self, x.start, x.stop, x.step))
+        else:
+            return next(islice(self, x, None), None)
+
 
 if __name__=='__main__':
     conn= Connection(host='https://mirror.targetvalidation.org')
