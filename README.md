@@ -1,6 +1,7 @@
 # opentargets-py
 Python client for the Open Targets REST API at targetvalidation.org
 
+[![Build Status](https://travis-ci.org/CTTV/opentargets-py.svg?branch=master)](https://travis-ci.org/CTTV/opentargets-py)
 
 Why should you use this client instead of the REST API directly?
 
