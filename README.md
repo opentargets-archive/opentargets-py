@@ -27,7 +27,7 @@ from opentargets.conn import result_to_json
 ot = OpenTargetsClient()
 
 search_result = ot.search('BRAF')
-print earch_result[0]
+print search_result[0]
 
 a_for_target = ot.get_associations_for_target('BRAF')
 for a in a_for_target:
