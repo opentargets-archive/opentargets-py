@@ -28,17 +28,17 @@ ot = OpenTargetClient()
 search_result = ot.search('BRAF')
 print next(search_result)
 
-as_for_target = ot.get_associations_for_target('BRAF')
-for as in as_for_target:
-    print(as.id, as.association_score['overall'])
+a_for_target = ot.get_associations_for_target('BRAF')
+for a in a_for_target:
+    print(a.id, a.association_score['overall'])
 
-as_for_disease = ot.get_associations_for_disease('cancer')
+a_for_disease = ot.get_associations_for_disease('cancer')
 
-ev_for_target = ot.get_evidence_for_target('BRAF')
-for ev in ev_for_target:
-    print(ev.id)
+e_for_target = ot.get_evidence_for_target('BRAF')
+for e in e_for_target:
+    print(e.id)
 
-ev_for_disease = ot.get_evidence_for_disease('cancer')
+e_for_disease = ot.get_evidence_for_disease('medulloblastoma')
 
 ...
 
