@@ -3,18 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-=============================================================
-opentargets - Python client for targetvalidation.org REST API
-=============================================================
+====================================================
+opentargets - Python client for targetvalidation.org
+====================================================
 
 .. toctree::
    :maxdepth: 2
 
 
-opentargets is the official python client for the `Open Targets REST API`_ at `targetvalidation.org`_
+**opentargets** is the official python client for the `Open Targets REST API`_ at `targetvalidation.org`_
 
 This client allows you to query the API automatically taking care of handling all
-the calls and returing data in a pythonic way.
+the calls and returning data in a pythonic way.
 
 Main advantages of using the client versus querying the REST API directly
 
