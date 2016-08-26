@@ -1,7 +1,11 @@
 .. _tutorial:
 
-QUICK START
-===========
+========
+Tutorial
+========
+
+Quick Start
+-----------
 
 import the high level client
 ::
