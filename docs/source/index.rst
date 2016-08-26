@@ -43,7 +43,7 @@ Apache 2.0
 Contact
 -------
 
-- Author: Andrea Pierleoni (andreap at ebi dot ac doc uk)
+- Author: Andrea Pierleoni (andreap at ebi dot ac dot uk)
 - Support: Open Targets Support (support@targetvalidation.org)
 
 
@@ -53,13 +53,9 @@ Installation
 ::
 
     pip install opentargets
+or directly from github::
 
-You can also clone opentargets with Git by running:
-
-::
-
-    git clone git://github.com/CTTV/opentargets-py
-
+    pip install git+git://github.com/CTTV/opentargets-py.git
 Get the source code (or make your own fork) on GitHub : `CTTV/opentargets-py
 <http://github.com/CTTV/opentargets-py>`_
 
