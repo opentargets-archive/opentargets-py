@@ -37,7 +37,7 @@ class Response(object):
             parsed_response = response.json()
             if isinstance(parsed_response, dict):
                 if 'data' in parsed_response:
-                    self.data = [self._dict_to_namedtuple(e) for e in parsed_response['data']]
+                    self.data = parsed_response['data']
                     del parsed_response['data']
                 else:
                     self.data = []

@@ -33,7 +33,7 @@ print search_result[0]
 
 a_for_target = ot.get_associations_for_target('BRAF')
 for a in a_for_target:
-    print(a.id, a.association_score['overall'])
+    print(a['id'], a.association_score['overall'])
 
 a_for_disease = ot.get_associations_for_disease('cancer')
 

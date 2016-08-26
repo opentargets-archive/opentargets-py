@@ -57,7 +57,7 @@ class OpenTargetsClient(object):
             search_result = next(self.search(target, size=1, filter='target'))
             if not search_result:
                 raise AttributeError('cannot find an ensembl gene id for target {}'.format(target))
-            target_id = search_result.id
+            target_id = search_result['id']
             logger.debug('{} resolved to id {}'.format(target, target_id))
         else:
             target_id = target
@@ -71,7 +71,7 @@ class OpenTargetsClient(object):
             search_result = next(self.search(disease, size=1, filter='disease'))
             if not search_result:
                 raise AttributeError('cannot find an disease id for disease {}'.format(disease))
-            disease_id = search_result.id
+            disease_id = search_result['id']
             logger.debug('{} resolved to id {}'.format(disease, disease_id))
             results = self.filter_associations(disease=disease_id)
         return results
@@ -94,7 +94,7 @@ class OpenTargetsClient(object):
             search_result = next(self.search(target, size=1, filter='target'))
             if not search_result:
                 raise AttributeError('cannot find an ensembl gene id for target {}'.format(target))
-            target_id = search_result.id
+            target_id = search_result['id']
             logger.debug('{} resolved to id {}'.format(target, target_id))
         else:
             target_id = target
@@ -108,7 +108,7 @@ class OpenTargetsClient(object):
             search_result = next(self.search(disease, size=1, filter='disease'))
             if not search_result:
                 raise AttributeError('cannot find an disease id for disease {}'.format(disease))
-            disease_id = search_result.id
+            disease_id = search_result['id']
             logger.debug('{} resolved to id {}'.format(disease, disease_id))
             results = self.filter_evidence(disease=disease_id)
         return results
