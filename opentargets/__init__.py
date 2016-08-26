@@ -1,3 +1,8 @@
+"""
+This module communicate with the Open Targets REST API with a simple client, and requires not knowledge of the API.
+"""
+
+
 import logging
 
 from opentargets.conn import Connection, IterableResult
@@ -8,6 +13,7 @@ logger.setLevel(logging.DEBUG)
 class OpenTargetsClient(object):
     '''
     main class to use to get data from the Open Targets REST API available at targetvalidation.org, or your private instance
+
     '''
 
     _search_endpoint = '/public/search'

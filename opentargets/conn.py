@@ -1,3 +1,9 @@
+"""
+This module abstracts the connection to the Open Targets REST API to simplify its usage.
+Can be used directly but requires some knowledge of the API.
+"""
+
+
 import json
 import logging
 from collections import namedtuple
@@ -104,9 +110,6 @@ class Response(object):
 
 
 class Connection(object):
-    '''
-    Handles connections to the Open Targets REST API
-    '''
 
     _AUTO_GET_TOKEN = 'auto'
 
@@ -119,6 +122,7 @@ class Connection(object):
                  use_http2=False,
                  ):
         '''
+
         :param host: host to point to
         :param port: port to use for connection
         :param api_version: api version, default to latest
