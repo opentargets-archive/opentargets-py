@@ -66,5 +66,5 @@ Documentation
 * :ref:`tutorial`
 * :ref:`high_level_api`
 * :ref:`low_level_api`
-* :ref:`code`
+* :ref:`modules`
 * :ref:`history`

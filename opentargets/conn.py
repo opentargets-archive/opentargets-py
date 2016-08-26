@@ -119,7 +119,6 @@ class Connection(object):
                  use_http2=False,
                  ):
         '''
-
         :param host: host to point to
         :param port: port to use for connection
         :param api_version: api version, default to latest
@@ -212,7 +211,9 @@ class Connection(object):
                 response = call()
                 status_code = response.status_code
                 if status_code == 429:
-                    retry_after = float(response.headers['Retry-After'])
+                    retry_after=1
+                    if 'Retry-After' in response.headers:
+                        retry_after = float(response.headers['Retry-After'])
                     self._logger.warning('Maximum usage limit hit. Retrying in {} seconds'.format(retry_after))
                     time.sleep(retry_after)
                 elif  status_code == 419:
