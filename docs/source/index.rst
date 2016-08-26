@@ -52,13 +52,13 @@ Installation
 ------------
 ::
 
-    $ pip install opentargets
+    pip install opentargets
 
 You can also clone opentargets with Git by running:
 
 ::
 
-    $ git clone git://github.com/CTTV/opentargets-py
+    git clone git://github.com/CTTV/opentargets-py
 
 Get the source code (or make your own fork) on GitHub : `CTTV/opentargets-py
 <http://github.com/CTTV/opentargets-py>`_
