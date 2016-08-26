@@ -3,6 +3,16 @@
 opentargets package
 ===================
 
+Module contents
+---------------
+
+
+.. automodule:: opentargets
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Submodules
 ----------
 
@@ -14,12 +24,3 @@ opentargets.conn module
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-
-.. automodule:: opentargets
-    :members:
-    :undoc-members:
-    :show-inheritance:
