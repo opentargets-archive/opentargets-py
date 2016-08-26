@@ -24,7 +24,7 @@ search associations for a target:
 
     a_for_target = ot.get_associations_for_target('BRAF')
     for a in a_for_target:
-        print(a['id'], a.association_score['overall'])
+        print(a['id'], a['association_score']['overall'])
 
 search associations for a disease:
 ::
