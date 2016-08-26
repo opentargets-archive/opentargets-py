@@ -203,8 +203,8 @@ class Connection(object):
                 response = call()
                 status_code = response.status_code
                 if status_code == 429:
-                    retry_after = float(response.headers['Retry-After'])/1000.
-                    self._logger.warning('Usage allowance hit. Retrying in {} seconds'.format(retry_after))
+                    retry_after = float(response.headers['Retry-After'])
+                    self._logger.warning('Maximum usage limit hit. Retrying in {} seconds'.format(retry_after))
                     time.sleep(retry_after)
                 elif  status_code == 419:
                     self._update_token()
