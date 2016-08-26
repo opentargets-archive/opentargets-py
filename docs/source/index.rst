@@ -3,11 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. Biograpy documentation master file, created by
-   sphinx-quickstart on Fri Apr 16 17:35:36 2010.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 =============================================================
 opentargets - Python client for targetvalidation.org REST API
 =============================================================
@@ -48,8 +43,8 @@ Apache 2.0
 Contact
 -------
 
-Andrea Pierleoni (andreap at ebi dot ac doc uk)
-Open Targets Support (support at targetvalidation dot org)
+- Author: Andrea Pierleoni (andreap at ebi dot ac doc uk)
+- Support: Open Targets Support (support@targetvalidation.org)
 
 
 
