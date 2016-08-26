@@ -21,6 +21,11 @@ class OpenTargetsClient(object):
     def __init__(self,
                  **kwargs
                  ):
+        '''
+
+        :param kwargs: all params forwarded to :class:`opentargets.conn.Connection` object
+
+        '''
         self.conn = Connection(**kwargs)
 
     def __enter__(self):

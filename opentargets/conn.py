@@ -118,6 +118,15 @@ class Connection(object):
                  auth_secret = None,
                  use_http2=False,
                  ):
+        '''
+
+        :param host: host to point to
+        :param port: port to use for connection
+        :param api_version: api version, default to latest
+        :param auth_app_name: app_name if using auth
+        :param auth_secret: secret if using auth
+        :param use_http2: activate http2 client
+        '''
         self._logger = logging.getLogger(__name__)
         self.host = host
         self.port = port
