@@ -14,6 +14,8 @@ class OpenTargetClientTest(unittest.TestCase):
 
         self.client = OpenTargetsClient()
         self.http2_client = OpenTargetsClient(use_http2=True)
+        self.auth_client = OpenTargetsClient(auth_app_name='test',
+                                             auth_secret='test',)
 
     def tearDown(self):
         self.client.close()
@@ -31,6 +33,16 @@ class OpenTargetClientTest(unittest.TestCase):
     def testSearchTargetFetchAllResults(self):
         target_symbol = 'BRAF'
         response = self.client.search(target_symbol)
+        total_results = len(response)
+        self.assertGreater(total_results,0)
+        c=0
+        for i in response:
+            c+=1
+        self.assertEqual(total_results, c)
+
+    def testSearchTargetFetchAllResultsAuth(self):
+        target_symbol = 'BRAF'
+        response = self.auth_client.search(target_symbol)
         total_results = len(response)
         self.assertGreater(total_results,0)
         c=0
@@ -130,4 +142,3 @@ class OpenTargetClientTest(unittest.TestCase):
     def testGetStats(self):
         response = self.client.get_stats()
         self.assertEquals(len(response), 0)
-        print(response.info)

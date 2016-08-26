@@ -124,6 +124,10 @@ class Connection(object):
         self.api_version = api_version
         self.auth_app_name = auth_app_name
         self.auth_secret = auth_secret
+        if self.auth_app_name and self.auth_secret:
+            self.use_auth = True
+        else:
+            self.use_auth = False
         self.token = None
         self.use_http2 = use_http2
         session= requests.Session()
@@ -159,14 +163,14 @@ class Connection(object):
                                   )
 
     def get_token(self, expire = 10*60):
-        return self._make_token_request(expire).data['token']
+        response = self._make_token_request(expire)
+        return response.json()['token']
 
     def _make_request(self,
                       endpoint,
                       params = None,
                       data = None,
                       method = "GET",
-                      token = None,
                       headers = {},
                       rate_limit_fail = False,
                       **kwargs):
@@ -186,22 +190,24 @@ class Connection(object):
             else:
                 params = sorted(params)
 
-        if token is not None and token == self._AUTO_GET_TOKEN:
-            self._update_token()
-            token = self.token
-        if token is not None:
-            headers['Auth-Token']=token
+        if self.use_auth and not 'request_token' in endpoint:
+            if self.token is None:
+                self._update_token()
+            if self.token is not None:
+                headers['Auth-Token']=self.token
 
         response = None
         if not rate_limit_fail:
             status_code = 429
-            while status_code == 429:
+            while status_code in [429,419]:
                 response = call()
                 status_code = response.status_code
                 if status_code == 429:
                     retry_after = float(response.headers['Retry-After'])/1000.
                     self._logger.warning('Usage allowance hit. Retrying in {} seconds'.format(retry_after))
                     time.sleep(retry_after)
+                elif  status_code == 419:
+                    self._update_token()
         else:
             response = call()
 
@@ -214,8 +220,11 @@ class Connection(object):
                                                        headers={'Auth-Token':self.token})
             if token_valid_response.status_code == 200:
                 return
-            if token_valid_response.status_code == 419:
+            elif token_valid_response.status_code == 419:
                 pass
+            else:
+                token_valid_response.raise_for_status()
+
         self.token = self.get_token()
 
     def _test_version(self):
