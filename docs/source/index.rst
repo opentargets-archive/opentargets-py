@@ -10,8 +10,6 @@ opentargets - Python client for targetvalidation.org
 .. toctree::
    :maxdepth: 2
 
-   tutorial
-   modules
 
 
 **opentargets** is the official python client for the `Open Targets REST API`_ at `targetvalidation.org`_
