@@ -13,5 +13,17 @@ setup(name='opentargets',
       packages=['opentargets'],
       license='Apache 2.0',
       download_url='https://github.com/CTTV/opentargets-py/tarball/1.2.0a1',
-      keywords = ['opentargets', 'bioinformatics', 'python3']
+      keywords = ['opentargets', 'bioinformatics', 'python3'],
+      install_requires=[
+          'requests',
+          'cachecontrol',
+          'hyper >= 0.6.2',
+          'namedtupled'],
+      extras_require={
+          'tests': [
+              'nose',
+              ],
+          'docs': [
+              'sphinx >= 1.4',
+              'sphinx_rtd_theme']}
       )
