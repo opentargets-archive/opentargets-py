@@ -1,9 +1,26 @@
 .. _modules:
 
-opentargets
-===========
+Code Documentation
+==================
 
-.. toctree::
-   :maxdepth: 4
+Module contents
+---------------
 
-   opentargets
+
+.. automodule:: opentargets
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Submodules
+----------
+
+opentargets.conn module
+-----------------------
+
+.. automodule:: opentargets.conn
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

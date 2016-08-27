@@ -7,11 +7,6 @@
 opentargets - Python client for targetvalidation.org
 ====================================================
 
-.. toctree::
-   :maxdepth: 2
-
-
-
 **opentargets** is the official python client for the `Open Targets REST API`_ at `targetvalidation.org`_
 
 This client allows you to query the API automatically taking care of handling all
@@ -54,11 +49,13 @@ Installation
 ::
 
     pip install opentargets
+
 or directly from github
 
 ::
 
     pip install git+git://github.com/CTTV/opentargets-py.git
+
 Get the source code (or make your own fork) on GitHub : `CTTV/opentargets-py
 <http://github.com/CTTV/opentargets-py>`_
 
@@ -66,8 +63,11 @@ Get the source code (or make your own fork) on GitHub : `CTTV/opentargets-py
 Documentation
 -------------
 
-* :ref:`tutorial`
-* :ref:`high_level_api`
-* :ref:`low_level_api`
-* :ref:`modules`
-* :ref:`history`
+.. toctree::
+   :maxdepth: 2
+
+   tutorial
+   high_level_api
+   low_level_api
+   modules
+   history
