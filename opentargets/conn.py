@@ -15,7 +15,7 @@ from hyper.contrib import HTTP20Adapter
 import time
 import namedtupled
 from future.utils import implements_iterator
-
+import yaml
 
 
 VERSION=1.2
@@ -24,11 +24,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 class HTTPMethods(object):
-    GET='GET'
-    POST='POST'
-    HEAD='HEAD'
-    PUT='PUT'
-    DELETE='DELETE'
+    GET='get'
+    POST='post'
+
 
 def result_to_json(result, **kwargs):
     '''transforms a result back to json. kwargs will be passed to json.dumps'''
@@ -146,7 +144,7 @@ class Connection(object):
         if self.use_http2:
             session.mount(host, HTTP20Adapter())
         self.session = CacheControl(session)
-        self._test_version()
+        self._get_remote_api_specs()
 
 
 
@@ -241,10 +239,41 @@ class Connection(object):
 
         self.token = self.get_token()
 
-    def _test_version(self):
+    def _get_remote_api_specs(self):
+        r= self.session.get(self.host+'/api/docs/swagger.yaml')
+        r.raise_for_status()
+        self.swagger_yaml = r.text
+        self.api_specs = yaml.load(self.swagger_yaml)
+        self.endpoint_validation_data={}
+        for p, data in self.api_specs['paths'].items():
+            p=p.split('{')[0]
+            if p[-1]== '/':
+                p=p[:-1]
+            self.endpoint_validation_data[p] = {}
+            for method, method_data in data.items():
+                if 'parameters' in method_data:
+                    params = {}
+                    for par in method_data['parameters']:
+                        par_type = par.get('type', 'string')
+                        params[par['name']]=par_type
+                    self.endpoint_validation_data[p][method] = params
+
+
         remote_version = self.get('/public/utils/version').data
         if remote_version != VERSION:
             self._logger.warning('The remote server is running the API with version {}, but the client expected {}. They may not be compatible.'.format(remote_version, VERSION))
+
+    def validate_parameter(self, endpoint, filter_type, value, method=HTTPMethods.GET):
+        endpoint_data = self.endpoint_validation_data[endpoint][method]
+        if filter_type in endpoint_data:
+            if endpoint_data[filter_type] == 'string' and isinstance(value, str):
+                return
+            elif endpoint_data[filter_type] == 'boolean' and isinstance(value, bool):
+                return
+            elif endpoint_data[filter_type] == 'number' and isinstance(value, (int, float)):
+                return
+
+        raise AttributeError('{}={} is not a valid parameter for endpoint {}'.format(filter_type, value, endpoint))
 
     def close(self):
         self.session.close()
@@ -271,6 +300,13 @@ class IterableResult(object):
         except:
             self.total = len(self._data)
 
+    def filter(self, **kwargs):
+        if kwargs:
+            for filter_type, filter_value in kwargs.items():
+                self._validate_filter(filter_type, filter_value)
+                self._kwargs['params'][filter_type] = filter_value
+            self.__call__(*self._args, **self._kwargs)
+
 
 
     def _make_call(self):
@@ -287,8 +323,8 @@ class IterableResult(object):
     def __next__(self):
         if self.current < self.total:
             if not self._data:
-                self._kwargs['from'] = self.current
-            self._data = self._make_call().data
+                self._kwargs['params']['from'] = self.current
+                self._data = self._make_call().data
             d = self._data.pop(0)
             self.current+=1
             return d
@@ -308,14 +344,24 @@ class IterableResult(object):
         return self.__bool__()
 
     def __str__(self):
-        data = str(self._data)
-        return data[:100] + (data[100:] and '...')
+        try:
+            return_str = '{} Results found'.format(self.info.total)
+            if  self._kwargs['params']:
+                return_str+=' | parameters: {}'.format(self._kwargs['params'])
+            return return_str
+        except:
+            data = str(self._data)
+            return data[:100] + (data[100:] and '...')
 
     def __getitem__(self, x):
         if type(x) is slice:
             return list(islice(self, x.start, x.stop, x.step))
         else:
             return next(islice(self, x, None), None)
+
+    def _validate_filter(self,filter_type, value):
+        self.conn.validate_parameter(self._args[0], filter_type, value)
+
 
 
 if __name__=='__main__':

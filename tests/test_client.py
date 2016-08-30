@@ -99,7 +99,26 @@ class OpenTargetClientTest(unittest.TestCase):
     def testFilterAssociations(self):
         response = self.client.filter_associations()
         self.assertGreater(len(response), 0)
-        result = next(response)
+        total = response.info.total
+        print(response)
+        response.filter(target='ENSG00000157764')
+        self.assertLess(len(response), total)
+        print(response)
+        total = response.info.total
+        response.filter(direct=True)
+        self.assertLess(len(response), total)
+        print(response)
+        total = response.info.total
+        response.filter(scorevalue_min=0.2)
+        self.assertLess(len(response), total)
+        print(response)
+        total = response.info.total
+        response.filter(therapeutic_area='efo_0000701')
+        self.assertLess(len(response), total)
+        print(response)
+        for r in response:
+            print(r['id'], r['association_score']['overall'], r['disease']['efo_info']['label'])
+
 
     def testGetAssociationsForTarget(self):
         target_symbol = 'BRAF'
