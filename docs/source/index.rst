@@ -14,7 +14,7 @@ the calls and returning data in a pythonic way.
 
 Main advantages of using the client versus querying the REST API directly
 
-- Include wrappers for all public methods
+- Include wrappers for all public methods, with query validation
 - Tools for the most common calls (E.g. get data for a target gene symbol even if you do not know its Ensembl Gene Id)
 - Supports automatic retrieval of paginated results with an iterator pattern
 - Handles Authentication
