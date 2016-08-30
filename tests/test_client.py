@@ -116,8 +116,8 @@ class OpenTargetClientTest(unittest.TestCase):
         response.filter(therapeutic_area='efo_0000701')
         self.assertLess(len(response), total)
         print(response)
-        for r in response:
-            print(r['id'], r['association_score']['overall'], r['disease']['efo_info']['label'])
+        for i,r in enumerate(response):
+            print(i, r['id'], r['association_score']['overall'], r['disease']['efo_info']['label'])
 
 
     def testGetAssociationsForTarget(self):
