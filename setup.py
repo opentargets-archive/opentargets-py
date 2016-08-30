@@ -18,7 +18,8 @@ setup(name='opentargets',
           'requests',
           'cachecontrol',
           'hyper >= 0.6.2',
-          'namedtupled'],
+          'namedtupled',
+          'PyYAML'],
       extras_require={
           'tests': [
               'nose',
