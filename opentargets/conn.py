@@ -299,6 +299,7 @@ class IterableResult(object):
             self.total = int(self.info.total)
         except:
             self.total = len(self._data)
+        return self
 
     def filter(self, **kwargs):
         if kwargs:
@@ -306,7 +307,7 @@ class IterableResult(object):
                 self._validate_filter(filter_type, filter_value)
                 self._kwargs['params'][filter_type] = filter_value
             self.__call__(*self._args, **self._kwargs)
-
+        return self
 
 
     def _make_call(self):

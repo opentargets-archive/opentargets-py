@@ -10,6 +10,7 @@ Changelog
 - Added parsing of swagger YAML for query validation
 
 Minor:
+
 - bugfixes
 - improved tests
 - improved docs

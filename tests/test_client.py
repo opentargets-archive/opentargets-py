@@ -116,8 +116,18 @@ class OpenTargetClientTest(unittest.TestCase):
         response.filter(therapeutic_area='efo_0000701')
         self.assertLess(len(response), total)
         print(response)
+        results =[]
         for i,r in enumerate(response):
             print(i, r['id'], r['association_score']['overall'], r['disease']['efo_info']['label'])
+            results.append(r)
+        response_multi = self.client.filter_associations(target='ENSG00000157764',direct=True,scorevalue_min=0.2,therapeutic_area='efo_0000701')
+        self.assertEqual(len(response_multi), response.info.total)
+        for i, r in enumerate(response_multi):
+            self.assertEqual(results[i]['id'], r['id'])
+        response_chained = self.client.filter_associations().filter(target='ENSG00000157764').filter(direct=True).filter(therapeutic_area='efo_0000701').filter(scorevalue_min=0.2)
+        self.assertEqual(len(response_chained), response.info.total)
+        for i,r in enumerate(response_chained):
+            self.assertEqual(results[i]['id'],r['id'])
 
 
     def testGetAssociationsForTarget(self):
