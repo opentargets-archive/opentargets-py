@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(name='opentargets',
       version='1.2.0a1',
@@ -10,16 +10,22 @@ setup(name='opentargets',
       maintainer='Open Targets Core Team',
       maintainer_email='support@targetvalidation.org',
       url='https://github.com/CTTV/opentargets-py',
-      packages=['opentargets'],
+      packages=find_packages(),
       license='Apache 2.0',
       download_url='https://github.com/CTTV/opentargets-py/tarball/1.2.0a1',
       keywords = ['opentargets', 'bioinformatics', 'python3'],
+      include_package_data=True,
       install_requires=[
           'requests',
+          'Click',
           'cachecontrol',
           'hyper >= 0.6.2',
           'namedtupled',
           'PyYAML'],
+      entry_points='''
+        [console_scripts]
+        ot=opentargets.scripts.ot:cli
+        ''',
       extras_require={
           'tests': [
               'nose',
