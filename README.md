@@ -22,14 +22,14 @@ QUICK START
 ===========
 
 ```python
-
+import json
 from opentargets import OpenTargetsClient
 from opentargets.conn import result_to_json
 
 ot = OpenTargetsClient()
 
 search_result = ot.search('BRAF')
-print search_result[0]
+print(search_result[0])
 
 a_for_target = ot.get_associations_for_target('BRAF')
 for a in a_for_target:
@@ -41,7 +41,7 @@ print(ot.get_association('ENSG00000157764-EFO_0005803')[0])
 
 e_for_target = ot.get_evidence_for_target('BRAF')
 for e in e_for_target:
-    print(result_to_json(e))
+    print(json.dumps(e))
 
 e_for_disease = ot.get_evidence_for_disease('medulloblastoma')
 
