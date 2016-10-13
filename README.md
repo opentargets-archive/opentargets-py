@@ -13,6 +13,7 @@ Why should you use this client instead of the REST API directly?
 - Supports automatic retrieval of paginated results with an iterator pattern
 - Include wrappers for public methods
 - Tools for the most common calls (E.g. get data for a target gene symbol even if you do not know its Ensembl Gene Id)
+- Easily save query results as JSON, CSV or Excel file
 
 This client is supported for Python 3.5 and upper.
 Works on lower version (including python 2) on a best effort basis.
