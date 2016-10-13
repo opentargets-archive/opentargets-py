@@ -7,6 +7,7 @@ python:
 install:
   - pip install .
   - pip install -r requirements.txt
-  - pip install  pandas xlwt
+  - pip install  pandas
+  - pip install  xlwt
 # command to run tests
 script: nosetests

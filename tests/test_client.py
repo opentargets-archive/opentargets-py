@@ -196,7 +196,7 @@ class OpenTargetClientTest(unittest.TestCase):
         self.assertGreater(len(response),0)
         csv = response.to_csv()
         # open('test.csv','wb').write(csv.encode('utf-8'))
-        self.assertEqual(len(csv.split('\n')), items + 1)
+        self.assertEqual(len(csv.split('\n')), items + 2)
 
     def testResultToPandasExcel(self):
         target_symbol = 'BRAF'
