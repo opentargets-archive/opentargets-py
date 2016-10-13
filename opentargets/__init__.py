@@ -2,11 +2,10 @@
 This module communicate with the Open Targets REST API with a simple client, and requires not knowledge of the API.
 """
 
-
-import logging
-
 from opentargets.conn import Connection, IterableResult
 
+import logging
+logging.getLogger('opentargets').addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 

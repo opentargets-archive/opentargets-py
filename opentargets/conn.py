@@ -8,7 +8,9 @@ import json
 import logging
 from collections import namedtuple
 from itertools import islice
+from json import JSONEncoder
 
+import collections
 import requests
 from cachecontrol import CacheControl
 from hyper.contrib import HTTP20Adapter
@@ -17,6 +19,17 @@ import namedtupled
 from future.utils import implements_iterator
 import yaml
 
+try:
+    import pandas
+    pandas_available = True
+except ImportError:
+    pandas_available = False
+
+try:
+    import xlwt
+    xlwt_available = True
+except ImportError:
+    xlwt_available = False
 
 VERSION=1.2
 
@@ -27,10 +40,6 @@ class HTTPMethods(object):
     GET='get'
     POST='post'
 
-
-def result_to_json(result, **kwargs):
-    '''transforms a result back to json. kwargs will be passed to json.dumps'''
-    return json.dumps(result._asdict(), **kwargs)
 
 class Response(object):
     ''' Handler for responses from the api'''
@@ -354,6 +363,9 @@ class IterableResult(object):
             data = str(self._data)
             return data[:100] + (data[100:] and '...')
 
+    def __repr__(self):
+        return self.__str__()
+
     def __getitem__(self, x):
         if type(x) is slice:
             return list(islice(self, x.start, x.stop, x.step))
@@ -363,6 +375,51 @@ class IterableResult(object):
     def _validate_filter(self,filter_type, value):
         self.conn.validate_parameter(self._args[0], filter_type, value)
 
+    def to_json(self, **kwargs):
+        '''transforms a result back to json. kwargs will be passed to json.dumps'''
+        return IterableResultSimpleJSONEncoder(**kwargs).encode(self)
+
+    def to_dataframe(self, **kwargs):
+        if pandas_available:
+            # return pandas.read_json(self.to_json(), **kwargs)
+            return pandas.DataFrame.from_dict(list(map(flatten,self)),  **kwargs)
+        else:
+            raise ImportError('Pandas library is not installed but is required to create a dataframe')
+
+    def to_csv(self, **kwargs):
+        return self.to_dataframe().to_csv(**kwargs)
+
+
+    def to_excel(self, excel_writer, **kwargs):
+        if xlwt_available:
+            return self.to_dataframe().to_excel(excel_writer, **kwargs)
+        else:
+            raise ImportError('xlwt library is not installed but is required to create an excel file')
+
+
+class IterableResultSimpleJSONEncoder(JSONEncoder):
+    def default(self, o):
+        '''extends JsonEncoder to support IterableResult'''
+        if isinstance(o, IterableResult):
+            return list(o)
+
+
+def flatten(d, parent_key='', separator='.'):
+    '''
+    takes a nested dictionary as input and generate a flat one with keys separated by the separator
+    :param d: dictionary
+    :param parent_key: a prefix for all flattened keys
+    :param separator: separator between nested keys
+    :return: flattened dictionary
+    '''
+    flat_fields = []
+    for k, v in d.items():
+        flat_key = parent_key + separator + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            flat_fields.extend(flatten(v, flat_key, separator=separator).items())
+        else:
+            flat_fields.append((flat_key, v))
+    return dict(flat_fields)
 
 
 if __name__=='__main__':

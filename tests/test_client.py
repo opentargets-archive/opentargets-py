@@ -1,3 +1,4 @@
+import json
 import logging
 import unittest
 
@@ -167,6 +168,44 @@ class OpenTargetClientTest(unittest.TestCase):
         self.assertGreater(len(response), 0)
         result = next(response)
         self.assertEqual(result['disease']['efo_info']['label'], disease_label)
+
+    def testSerialiseToJson(self):
+        target_symbol = 'BRAF'
+        response = self.client.search(target_symbol)
+        items = len(response)
+        self.assertGreater(len(response),0)
+        json_output = response.to_json()
+        parsed_json = json.loads(json_output)
+        self.assertEqual(items, len(parsed_json))
+
+    def testResultToPandasDataFrame(self):
+        target_symbol = 'BRAF'
+        response = self.client.get_associations_for_target(target_symbol)
+        items = len(response)
+        self.assertGreater(len(response),0)
+        dataframe = response.to_dataframe()
+        self.assertEqual(len(dataframe), items)
+
+    def testResultToPandasCSV(self):
+        target_symbol = 'BRAF'
+        response = self.client.get_associations_for_target(target_symbol,
+                                                           fields=['association_score.*', 'target.gene_info.symbol',
+                                                                   'disease.efo_info.label']
+                                                           )
+        items = len(response)
+        self.assertGreater(len(response),0)
+        csv = response.to_csv()
+        # open('test.csv','wb').write(csv.encode('utf-8'))
+        self.assertEqual(len(csv.split('\n')), items + 1)
+
+    def testResultToPandasExcel(self):
+        target_symbol = 'BRAF'
+        response = self.client.get_associations_for_target(target_symbol,
+                                                           fields=['association_score.*', 'target.gene_info.symbol',
+                                                                   'disease.efo_info.label']
+                                                           )
+        self.assertGreater(len(response),0)
+        response.to_excel('test.xls')
 
     def testGetStats(self):
         response = self.client.get_stats()
