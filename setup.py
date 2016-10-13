@@ -23,6 +23,8 @@ setup(name='opentargets',
       extras_require={
           'tests': [
               'nose',
+              'pandas',
+              'xlwt'
               ],
           'docs': [
               'sphinx >= 1.4',
