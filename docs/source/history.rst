@@ -3,6 +3,14 @@
 Changelog
 =========
 
+1.2.0b1
+---------------------
+
+- Added option to export data as JSON, csv, excel or pandas dataframe. (optional dependency for pandas and xlwt)
+- Fixed post calls and qutomatically switch to post for a large request
+
+
+
 1.2.0a2
 ---------------------
 

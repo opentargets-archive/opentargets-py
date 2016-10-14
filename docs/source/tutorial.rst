@@ -39,10 +39,8 @@ get an association by id:
 get evidence for a target:
 ::
 
-    from opentargets.conn import result_to_json
     e_for_target = ot.get_evidence_for_target('BRAF')
-    for e in e_for_target:
-        print(result_to_json(e))
+    print(e_for_target.to_json())
 
 get evidence for a disease:
 ::
@@ -96,3 +94,19 @@ use incremental filter:
     10 ENSG00000157764-EFO_1000249 0.5555555555555556 Extramammary Paget Disease
     11 ENSG00000157764-Orphanet_774 0.21793721666666668 Hereditary hemorrhagic telangiectasia
 
+
+export a table with association score for each datasource into an excel file:
+::
+
+    >>> from opentargets import OpenTargetsClient
+    >>> client = OpenTargetsClient()
+    >>> response = client.get_associations_for_target('BRAF',
+    ...     fields=['association_score.datasource*',
+    ...             'association_score.overall',
+    ...             'target.gene_info.symbol',
+    ...             'disease.efo_info.*']
+    ...     )
+    >>> response
+    865 Results found | parameters: {'target': 'ENSG00000157764', 'fields': ['association_score.datasource*', 'association_score.overall', 'target.gene_info.symbol', 'disease.efo_info.label']}
+    >>> response.to_excel('BRAF_associated_diseases_by_datasource.xls')
+    >>>

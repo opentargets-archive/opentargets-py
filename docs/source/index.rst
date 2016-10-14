@@ -17,6 +17,7 @@ Main advantages of using the client versus querying the REST API directly
 - Include wrappers for all public methods, with query validation
 - Tools for the most common calls (E.g. get data for a target gene symbol even if you do not know its Ensembl Gene Id)
 - Supports automatic retrieval of paginated results with an iterator pattern
+- Easily save query results as JSON, CSV or Excel file
 - Handles Authentication
 - Handles fair usage limits transparently
 - Follows HTTP cache as set by the REST API

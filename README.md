@@ -6,14 +6,14 @@ Python client for the Open Targets REST API at targetvalidation.org
 
 Why should you use this client instead of the REST API directly?
 
+- Include wrappers for all public methods, with query validation
+- Tools for the most common calls (E.g. get data for a target gene symbol even if you do not know its Ensembl Gene Id)
+- Supports automatic retrieval of paginated results with an iterator pattern
+- Easily save query results as JSON, CSV or Excel file
 - Handles Authentication
 - Handles fair usage limits transparently
 - Follows HTTP cache as set by the REST API
 - Experimental HTTP2 support for better performance (beware the client library is in alpha)
-- Supports automatic retrieval of paginated results with an iterator pattern
-- Include wrappers for public methods
-- Tools for the most common calls (E.g. get data for a target gene symbol even if you do not know its Ensembl Gene Id)
-- Easily save query results as JSON, CSV or Excel file
 
 This client is supported for Python 3.5 and upper.
 Works on lower version (including python 2) on a best effort basis.
@@ -40,8 +40,7 @@ a_for_disease = ot.get_associations_for_disease('cancer')
 print(ot.get_association('ENSG00000157764-EFO_0005803')[0])
 
 e_for_target = ot.get_evidence_for_target('BRAF')
-for e in e_for_target:
-    print(e.to_json())
+print(e_for_target.to_json())
 
 e_for_disease = ot.get_evidence_for_disease('medulloblastoma')
 
