@@ -2,6 +2,7 @@ import json
 import logging
 import unittest
 
+from opentargets import Connection
 from opentargets import OpenTargetsClient
 
 logger = logging.getLogger(__name__)
@@ -190,19 +191,19 @@ class OpenTargetClientTest(unittest.TestCase):
         target_symbol = 'BRAF'
         response = self.client.get_associations_for_target(target_symbol,
                                                            fields=['association_score.*', 'target.gene_info.symbol',
-                                                                   'disease.efo_info.label']
+                                                                   'disease.efo_info.*']
                                                            )
         items = len(response)
         self.assertGreater(len(response),0)
         csv = response.to_csv()
-        # open('test.csv','wb').write(csv.encode('utf-8'))
+        open('test.csv','wb').write(csv.encode('utf-8'))
         self.assertEqual(len(csv.split('\n')), items + 2)
 
     def testResultToPandasExcel(self):
         target_symbol = 'BRAF'
         response = self.client.get_associations_for_target(target_symbol,
                                                            fields=['association_score.*', 'target.gene_info.symbol',
-                                                                   'disease.efo_info.label']
+                                                                   'disease.efo_info.*']
                                                            )
         self.assertGreater(len(response),0)
         response.to_excel('test.xls')
@@ -210,3 +211,20 @@ class OpenTargetClientTest(unittest.TestCase):
     def testGetStats(self):
         response = self.client.get_stats()
         self.assertEquals(len(response), 0)
+
+    def testAutodetectPost(self):
+        self.assertFalse(Connection._auto_detect_post({'target':['ENSG00000157764']}))
+        self.assertTrue(Connection._auto_detect_post({'target': ['ENSG00000157764',
+                                                                 'ENSG00000171862',
+                                                                 'ENSG00000136997',
+                                                                 'ENSG00000012048',
+                                                                 'ENSG00000139618',
+                                                                 ]}))
+    def testGetToPost(self):
+        response = self.client.conn.get('/public/association/filter', params={'target': ['ENSG00000157764',
+                                                                 'ENSG00000171862',
+                                                                 'ENSG00000136997',
+                                                                 'ENSG00000012048',
+                                                                 'ENSG00000139618',
+                                                                 ]})
+        self.assertGreater(len(response), 0)

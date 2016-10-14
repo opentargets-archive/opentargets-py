@@ -162,8 +162,19 @@ class Connection(object):
                                        self.port,
                                        self.api_version,
                                        endpoint,)
+    @staticmethod
+    def _auto_detect_post(params):
+        if params:
+            for k,v in params.items():
+                if isinstance(v, (list, tuple)):
+                    if len(v)>3:
+                        return True
+        return False
 
     def get(self, endpoint, params=None):
+        if self._auto_detect_post(params):
+            self._logger.debug('switching to POST due to big size of params')
+            self.post(endpoint, data=params)
         return Response(self._make_request(endpoint,
                               params=params,
                               method='GET'))
@@ -198,7 +209,7 @@ class Connection(object):
             return self.session.request(method,
                                     self._build_url(endpoint),
                                     params = params,
-                                    data = data,
+                                    json = data,
                                     headers = headers,
                                     **kwargs)
 
@@ -222,7 +233,7 @@ class Connection(object):
                 response = call()
                 status_code = response.status_code
                 if status_code == 429:
-                    retry_after=1
+                    retry_after=5
                     if 'Retry-After' in response.headers:
                         retry_after = float(response.headers['Retry-After'])
                     self._logger.warning('Maximum usage limit hit. Retrying in {} seconds'.format(retry_after))
@@ -379,20 +390,23 @@ class IterableResult(object):
         '''transforms a result back to json. kwargs will be passed to json.dumps'''
         return IterableResultSimpleJSONEncoder(**kwargs).encode(self)
 
-    def to_dataframe(self, **kwargs):
+    def to_dataframe(self, compress_lists = False,**kwargs):
         if pandas_available:
-            # return pandas.read_json(self.to_json(), **kwargs)
-            return pandas.DataFrame.from_dict(list(map(flatten,self)),  **kwargs)
+            data = [flatten(i) for i in self]
+            if compress_lists:
+                data = [compress_list_values(i) for i in data]
+
+            return pandas.DataFrame.from_dict(data,  **kwargs)
         else:
             raise ImportError('Pandas library is not installed but is required to create a dataframe')
 
     def to_csv(self, **kwargs):
-        return self.to_dataframe().to_csv(**kwargs)
+        return self.to_dataframe(compress_lists=True).to_csv(**kwargs)
 
 
     def to_excel(self, excel_writer, **kwargs):
         if xlwt_available:
-            return self.to_dataframe().to_excel(excel_writer, **kwargs)
+            return self.to_dataframe(compress_lists=True).to_excel(excel_writer, **kwargs)
         else:
             raise ImportError('xlwt library is not installed but is required to create an excel file')
 
@@ -420,6 +434,25 @@ def flatten(d, parent_key='', separator='.'):
         else:
             flat_fields.append((flat_key, v))
     return dict(flat_fields)
+
+def compress_list_values(d, sep='|'):
+    '''
+
+    :param d: dictionary
+    :param sep: separator char used to join list element
+    :return: dictionary with compressed lists
+    '''
+    for k, v in d.items():
+        if not isinstance(v, (str, int, float)):
+            if isinstance(v, collections.Sequence):
+                safe_values = []
+                for i in v:
+                    if isinstance(i, (str, int, float)):
+                        safe_values.append(str(i))
+                    else:
+                        safe_values.append(json.dumps(i))
+                d[k]=sep.join(safe_values)
+    return d
 
 
 if __name__=='__main__':
