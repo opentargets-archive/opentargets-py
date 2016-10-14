@@ -29,7 +29,7 @@ from opentargets import OpenTargetsClient
 ot = OpenTargetsClient()
 
 search_result = ot.search('BRAF')
-print search_result[0]
+print(search_result[0])
 
 a_for_target = ot.get_associations_for_target('BRAF')
 for a in a_for_target:
