@@ -6,8 +6,9 @@ python:
 # command to install dependencies
 install:
   - pip install --upgrade
+  - pip --version
   - pip install .
   - pip install -r requirements.txt
-  - pip install  pandas xlwt
+  - pip install cython pandas xlwt
 # command to run tests
 script: nosetests
