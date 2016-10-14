@@ -5,9 +5,9 @@ python:
   - "3.5"
 # command to install dependencies
 install:
+  - pip install --upgrade --user pip
   - pip install .
   - pip install -r requirements.txt
-  - pip install  pandas
-  - pip install  xlwt
+  - pip install  pandas xlwt
 # command to run tests
 script: nosetests
