@@ -15,7 +15,6 @@ import requests
 from cachecontrol import CacheControl
 from hyper.contrib import HTTP20Adapter
 import time
-import namedtupled
 from future.utils import implements_iterator
 import yaml
 
@@ -35,6 +34,54 @@ VERSION=1.2
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
+
+def flatten(d, parent_key='', separator='.'):
+    '''
+    takes a nested dictionary as input and generate a flat one with keys separated by the separator
+    :param d: dictionary
+    :param parent_key: a prefix for all flattened keys
+    :param separator: separator between nested keys
+    :return: flattened dictionary
+    '''
+    flat_fields = []
+    for k, v in d.items():
+        flat_key = parent_key + separator + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            flat_fields.extend(flatten(v, flat_key, separator=separator).items())
+        else:
+            flat_fields.append((flat_key, v))
+    return dict(flat_fields)
+
+def compress_list_values(d, sep='|'):
+    '''
+
+    :param d: dictionary
+    :param sep: separator char used to join list element
+    :return: dictionary with compressed lists
+    '''
+    for k, v in d.items():
+        if not isinstance(v, (str, int, float)):
+            if isinstance(v, collections.Sequence):
+                safe_values = []
+                for i in v:
+                    if isinstance(i, (str, int, float)):
+                        safe_values.append(str(i))
+                    else:
+                        safe_values.append(json.dumps(i))
+                d[k]=sep.join(safe_values)
+    return d
+
+
+def dict_to_namedtuple(d, named_tuple_class_name='Result', rename=True):
+    return namedtuple(named_tuple_class_name, d.keys(), rename=rename)(*d.values())
+
+
+def dict_to_nested_namedtuple(d, named_tuple_class_name='Result', ):
+    for key, value in d.items():
+        if isinstance(value, dict):
+            d[key] = dict_to_nested_namedtuple(value)
+    return namedtuple(named_tuple_class_name, d.keys())(**d)
+
 
 class HTTPMethods(object):
     GET='get'
@@ -57,7 +104,7 @@ class Response(object):
                 if 'from' in parsed_response:
                     parsed_response['from_'] = parsed_response['from']
                     del parsed_response['from']
-                self.info = self._dict_to_namedtuple(parsed_response, classname='ResultInfo')
+                self.info = dict_to_namedtuple(parsed_response, named_tuple_class_name='ResultInfo')
 
             else:
                 self.data = parsed_response
@@ -67,14 +114,6 @@ class Response(object):
 
         else:
             raise AttributeError("content-type not supported")
-
-    @staticmethod
-    def _dict_to_namedtuple(d, classname ='Result', rename = True):
-        return namedtuple(classname, d.keys(),rename=rename)(*d.values())
-
-    @staticmethod
-    def _dict_to_nested_namedtuple(d, classname ='Result', ):
-        return namedtupled.map(d,classname)
 
     def __str__(self):
         data = str(self.data)
@@ -106,7 +145,7 @@ class Response(object):
         usage['remaining']['minimum'] =min((usage['remaining']['hour'], usage['remaining']['seconds_10']))
 
         usage['exceeded'] = usage['remaining']['minimum'] < 0
-        self.usage = self._dict_to_nested_namedtuple(usage, classname='UsageInfo')
+        self.usage = dict_to_nested_namedtuple(usage, named_tuple_class_name='UsageInfo')
         if self.usage.exceeded:
             self._logger.warning('Fair Usage limit exceeded')
     def __len__(self):
@@ -412,6 +451,9 @@ class IterableResult(object):
         else:
             raise ImportError('xlwt library is not installed but is required to create an excel file')
 
+    def to_namedtuple(self):
+        return (dict_to_nested_namedtuple(i) for i in self)
+
 
 class IterableResultSimpleJSONEncoder(JSONEncoder):
     def default(self, o):
@@ -420,41 +462,7 @@ class IterableResultSimpleJSONEncoder(JSONEncoder):
             return list(o)
 
 
-def flatten(d, parent_key='', separator='.'):
-    '''
-    takes a nested dictionary as input and generate a flat one with keys separated by the separator
-    :param d: dictionary
-    :param parent_key: a prefix for all flattened keys
-    :param separator: separator between nested keys
-    :return: flattened dictionary
-    '''
-    flat_fields = []
-    for k, v in d.items():
-        flat_key = parent_key + separator + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
-            flat_fields.extend(flatten(v, flat_key, separator=separator).items())
-        else:
-            flat_fields.append((flat_key, v))
-    return dict(flat_fields)
 
-def compress_list_values(d, sep='|'):
-    '''
-
-    :param d: dictionary
-    :param sep: separator char used to join list element
-    :return: dictionary with compressed lists
-    '''
-    for k, v in d.items():
-        if not isinstance(v, (str, int, float)):
-            if isinstance(v, collections.Sequence):
-                safe_values = []
-                for i in v:
-                    if isinstance(i, (str, int, float)):
-                        safe_values.append(str(i))
-                    else:
-                        safe_values.append(json.dumps(i))
-                d[k]=sep.join(safe_values)
-    return d
 
 
 if __name__=='__main__':

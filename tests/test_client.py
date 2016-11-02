@@ -208,6 +208,17 @@ class OpenTargetClientTest(unittest.TestCase):
         self.assertGreater(len(response),0)
         response.to_excel('test.xls')
 
+    def testSerialiseToNamedtuple(self):
+        target_symbol = 'BRAF'
+        response = self.client.get_associations_for_target(target_symbol)
+        items = len(response)
+        self.assertGreater(len(response),0)
+        nt_output = list(response.to_namedtuple())
+        for i,result in enumerate(nt_output):
+            self.assertIsNotNone(result.target.id)
+        self.assertEqual(items, i+1)
+
+
     def testGetStats(self):
         response = self.client.get_stats()
         self.assertEquals(len(response), 0)
