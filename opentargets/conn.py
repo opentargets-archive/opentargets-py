@@ -14,6 +14,7 @@ import collections
 import requests
 from cachecontrol import CacheControl
 from hyper.contrib import HTTP20Adapter
+from h2.utilities import CONNECTION_HEADERS as INVALID_HTTP2_HEADERS
 import time
 from future.utils import implements_iterator
 import yaml
@@ -246,8 +247,10 @@ class Connection(object):
 
         def call():
             headers['User-agent']='Open Targets Python Client/%s'%str(VERSION)
-            if self.use_http2 and 'Connection' in headers:
-                del headers['Connection']
+            if self.use_http2 and set(headers.keys())&INVALID_HTTP2_HEADERS:
+                for h in INVALID_HTTP2_HEADERS:
+                    if h in headers:
+                        del headers[h]
             return self.session.request(method,
                                     self._build_url(endpoint),
                                     params = params,
