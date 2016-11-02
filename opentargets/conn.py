@@ -174,7 +174,7 @@ class Connection(object):
     def get(self, endpoint, params=None):
         if self._auto_detect_post(params):
             self._logger.debug('switching to POST due to big size of params')
-            self.post(endpoint, data=params)
+            return self.post(endpoint, data=params)
         return Response(self._make_request(endpoint,
                               params=params,
                               method='GET'))
@@ -317,6 +317,8 @@ class IterableResult(object):
         self.current = 0
         try:
             self.total = int(self.info.total)
+            if 'size' in self.info._fields:
+                self._kwargs['size']=10000
         except:
             self.total = len(self._data)
         return self
@@ -325,16 +327,16 @@ class IterableResult(object):
         if kwargs:
             for filter_type, filter_value in kwargs.items():
                 self._validate_filter(filter_type, filter_value)
-                self._kwargs['params'][filter_type] = filter_value
+                self._kwargs[filter_type] = filter_value
             self.__call__(*self._args, **self._kwargs)
         return self
 
 
     def _make_call(self):
         if self.method == HTTPMethods.GET:
-            return self.conn.get(*self._args, **self._kwargs)
+            return self.conn.get(*self._args, params=self._kwargs)
         elif self.method == HTTPMethods.POST:
-            return self.conn.post(*self._args, **self._kwargs)
+            return self.conn.post(*self._args, data=self._kwargs)
         else:
             raise AttributeError("HTTP method {} is not supported".format(self.method))
 
@@ -344,7 +346,7 @@ class IterableResult(object):
     def __next__(self):
         if self.current < self.total:
             if not self._data:
-                self._kwargs['params']['from'] = self.current
+                self._kwargs['from'] = self.current
                 self._data = self._make_call().data
             d = self._data.pop(0)
             self.current+=1
@@ -367,8 +369,8 @@ class IterableResult(object):
     def __str__(self):
         try:
             return_str = '{} Results found'.format(self.info.total)
-            if  self._kwargs['params']:
-                return_str+=' | parameters: {}'.format(self._kwargs['params'])
+            if  self._kwargs:
+                return_str+=' | parameters: {}'.format(self._kwargs)
             return return_str
         except:
             data = str(self._data)

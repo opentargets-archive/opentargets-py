@@ -46,18 +46,18 @@ class OpenTargetsClient(object):
     def search(self, query,**kwargs):
         kwargs['q']=query
         result = IterableResult(self.conn)
-        result(self._search_endpoint,params=kwargs)
+        result(self._search_endpoint,**kwargs)
         return result
 
     def get_association(self,association_id, **kwargs):
         kwargs['id']= association_id
         result = IterableResult(self.conn)
-        result(self._get_associations_endpoint, params=kwargs)
+        result(self._get_associations_endpoint, **kwargs)
         return result
 
     def filter_associations(self,**kwargs):
         result = IterableResult(self.conn)
-        result(self._filter_associations_endpoint, params=kwargs)
+        result(self._filter_associations_endpoint, **kwargs)
         return result
 
     def get_associations_for_target(self, target, **kwargs):
@@ -89,12 +89,12 @@ class OpenTargetsClient(object):
     def get_evidence(self, evidence_id, **kwargs):
         kwargs['id']= evidence_id
         result = IterableResult(self.conn)
-        result(self._get_evidence_endpoint, params=kwargs)
+        result(self._get_evidence_endpoint, **kwargs)
         return result
 
     def filter_evidence(self,**kwargs):
         result = IterableResult(self.conn)
-        result(self._filter_evidence_endpoint, params=kwargs)
+        result(self._filter_evidence_endpoint, **kwargs)
         return result
 
     def get_evidence_for_target(self, target, **kwargs):
