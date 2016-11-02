@@ -245,6 +245,9 @@ class Connection(object):
                       **kwargs):
 
         def call():
+            headers['User-agent']='Open Targets Python Client/%s'%str(VERSION)
+            if self.use_http2 and 'Connection' in headers:
+                del headers['Connection']
             return self.session.request(method,
                                     self._build_url(endpoint),
                                     params = params,
