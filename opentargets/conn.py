@@ -79,7 +79,7 @@ def dict_to_namedtuple(d, named_tuple_class_name='Result', rename=True):
 def dict_to_nested_namedtuple(d, named_tuple_class_name='Result', ):
     for key, value in d.items():
         if isinstance(value, dict):
-            d[key] = dict_to_nested_namedtuple(value)
+            d[key] = dict_to_nested_namedtuple(value, named_tuple_class_name = named_tuple_class_name)
     return namedtuple(named_tuple_class_name, d.keys())(**d)
 
 
@@ -460,7 +460,7 @@ class IterableResult(object):
             raise ImportError('xlwt library is not installed but is required to create an excel file')
 
     def to_namedtuple(self):
-        return (dict_to_nested_namedtuple(i) for i in self)
+        return (dict_to_nested_namedtuple(i, named_tuple_class_name='Data') for i in self)
 
 
 class IterableResultSimpleJSONEncoder(JSONEncoder):

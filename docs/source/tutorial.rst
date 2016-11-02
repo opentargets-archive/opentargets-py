@@ -111,3 +111,47 @@ export a table with association score for each datasource into an excel file:
     865 Results found | parameters: {'target': 'ENSG00000157764', 'fields': ['association_score.datasource*', 'association_score.overall', 'target.gene_info.symbol', 'disease.efo_info.label']}
     >>> response.to_excel('BRAF_associated_diseases_by_datasource.xls')
     >>>
+
+If you want to change the way the associations are scored using just some datatype you might try something like this:
+::
+
+    >>> from opentargets import OpenTargetsClient
+    >>> from opentargets.statistics import HarmonicSumScorer
+    >>> ot = OpenTargetsClient()
+    >>> r = ot.get_associations_for_target('BRAF')
+    >>> interesting_datatypes = ['genetic_association', 'known_drug', 'somatic_mutation']
+    >>> def score_with_datatype_subset(datatypes, results):
+    ...     for i in results:
+    ...         datatype_scores = i['association_score']['datatypes']
+    ...         filtered_scores = [datatype_scores[dt] for dt in datatypes]
+    ...         custom_score = HarmonicSumScorer.harmonic_sum(filtered_scores)
+    ...         if custom_score:
+    ...             yield (custom_score, i['disease']['id'], dict(zip(datatypes, filtered_scores))) #return some useful data
+    >>> for i in score_with_datatype_subset(interesting_datatypes, r):
+    ...     print(i)
+    (1.8333333333333333, 'EFO_0000701', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 1.0})
+    (1.8333333333333333, 'EFO_0000616', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 1.0})
+    (1.8333333333333333, 'EFO_0000311', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 1.0})
+    (1.8333333333333333, 'EFO_0001379', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 1.0})
+    (1.8333333333333333, 'EFO_0000313', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 1.0})
+    (1.8333333333333333, 'EFO_0005803', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 1.0})
+    (1.8333333333333333, 'EFO_0001642', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 1.0})
+    (1.587037037037037, 'EFO_0000319', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.2611111111111111})
+    (1.5949074074074074, 'EFO_0000508', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.2847222222222222})
+    1.5, 'Orphanet_183530', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.0})
+    (1.5, 'EFO_0003777', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.0})
+    (1.5, 'Orphanet_98054', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.0})
+    (1.5, 'Orphanet_99739', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.0})
+    (1.5, 'Orphanet_217595', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.0})
+    (1.5, 'Orphanet_183570', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.0})
+    (1.5, 'Orphanet_98733', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.0})
+    (1.6050444693876402, 'EFO_0000684', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.31513340816292035})
+    (1.6050444693876402, 'EFO_0003818', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.31513340816292035})
+    (1.6050444693876402, 'EFO_0003853', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.31513340816292035})
+    (1.6050444693876402, 'EFO_0001071', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.31513340816292035})
+    (1.5408333333333333, 'EFO_0000618', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.1225})
+    (1.6803112925534462, 'EFO_0000228', {'genetic_association': 1.0, 'known_drug': 0.9357799925142999, 'somatic_mutation': 0.6372638888888889})
+    (1.6013073034769463, 'EFO_0000512', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.303921910430839})
+
+
+

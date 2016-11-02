@@ -4,29 +4,29 @@ import unittest
 
 from opentargets import Connection
 from opentargets import OpenTargetsClient
+from opentargets.statistics import HarmonicSumScorer
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 
 class OpenTargetClientTest(unittest.TestCase):
-    _AUTO_GET_TOKEN='auto'
+    _AUTO_GET_TOKEN = 'auto'
 
     def setUp(self):
 
         self.client = OpenTargetsClient()
         self.http2_client = OpenTargetsClient(use_http2=True)
         self.auth_client = OpenTargetsClient(auth_app_name='test',
-                                             auth_secret='test',)
+                                             auth_secret='test', )
 
     def tearDown(self):
         self.client.close()
 
-
     def testSearchTargetCorrectResult(self):
         target_symbol = 'BRAF'
         response = self.client.search(target_symbol)
-        self.assertGreater(len(response),0)
+        self.assertGreater(len(response), 0)
         result = next(response)
         self.assertEqual(result['type'], 'search-object-target')
         self.assertEqual(result['id'], 'ENSG00000157764')
@@ -36,20 +36,20 @@ class OpenTargetClientTest(unittest.TestCase):
         target_symbol = 'BRAF'
         response = self.client.search(target_symbol)
         total_results = len(response)
-        self.assertGreater(total_results,0)
-        c=0
+        self.assertGreater(total_results, 0)
+        c = 0
         for i in response:
-            c+=1
+            c += 1
         self.assertEqual(total_results, c)
 
     def testSearchTargetFetchAllResultsAuth(self):
         target_symbol = 'BRAF'
         response = self.auth_client.search(target_symbol)
         total_results = len(response)
-        self.assertGreater(total_results,0)
-        c=0
+        self.assertGreater(total_results, 0)
+        c = 0
         for i in response:
-            c+=1
+            c += 1
         self.assertEqual(total_results, c)
 
     def testSearchTargetCorrectResultHTTP2(self):
@@ -74,11 +74,10 @@ class OpenTargetClientTest(unittest.TestCase):
     def testSearchDiseaseCorrectResult(self):
         disease_label = 'cancer'
         response = self.client.search(disease_label)
-        self.assertGreater(len(response),0)
+        self.assertGreater(len(response), 0)
         result = next(response)
         self.assertEqual(result['type'], 'search-object-disease')
         self.assertEqual(result['id'], 'EFO_0000311')
-
 
     # #this takes a lot to run
     # def testSearchDiseaseFetchAllResults(self):
@@ -118,19 +117,20 @@ class OpenTargetClientTest(unittest.TestCase):
         response.filter(therapeutic_area='efo_0000701')
         self.assertLess(len(response), total)
         print(response)
-        results =[]
-        for i,r in enumerate(response):
+        results = []
+        for i, r in enumerate(response):
             print(i, r['id'], r['association_score']['overall'], r['disease']['efo_info']['label'])
             results.append(r)
-        response_multi = self.client.filter_associations(target='ENSG00000157764',direct=True,scorevalue_min=0.2,therapeutic_area='efo_0000701')
+        response_multi = self.client.filter_associations(target='ENSG00000157764', direct=True, scorevalue_min=0.2,
+                                                         therapeutic_area='efo_0000701')
         self.assertEqual(len(response_multi), response.info.total)
         for i, r in enumerate(response_multi):
             self.assertEqual(results[i]['id'], r['id'])
-        response_chained = self.client.filter_associations().filter(target='ENSG00000157764').filter(direct=True).filter(therapeutic_area='efo_0000701').filter(scorevalue_min=0.2)
+        response_chained = self.client.filter_associations().filter(target='ENSG00000157764').filter(
+            direct=True).filter(therapeutic_area='efo_0000701').filter(scorevalue_min=0.2)
         self.assertEqual(len(response_chained), response.info.total)
-        for i,r in enumerate(response_chained):
-            self.assertEqual(results[i]['id'],r['id'])
-
+        for i, r in enumerate(response_chained):
+            self.assertEqual(results[i]['id'], r['id'])
 
     def testGetAssociationsForTarget(self):
         target_symbol = 'BRAF'
@@ -175,7 +175,7 @@ class OpenTargetClientTest(unittest.TestCase):
         '''test iterable version'''
         response = self.client.get_associations_for_target(target_symbol)
         items = len(response)
-        self.assertGreater(len(response),0)
+        self.assertGreater(len(response), 0)
         json_output = response.to_json()
         parsed_json = [json.loads(i) for i in json_output]
         self.assertEqual(items, len(parsed_json))
@@ -191,59 +191,81 @@ class OpenTargetClientTest(unittest.TestCase):
         target_symbol = 'BRAF'
         response = self.client.get_associations_for_target(target_symbol)
         items = len(response)
-        self.assertGreater(len(response),0)
+        self.assertGreater(len(response), 0)
         dataframe = response.to_dataframe()
         self.assertEqual(len(dataframe), items)
 
     def testResultToPandasCSV(self):
         target_symbol = 'BRAF'
         response = self.client.get_associations_for_target(target_symbol,
-                                                           fields=['association_score.*', 'target.gene_info.symbol',
+                                                           fields=['association_score.*',
+                                                                   'target.gene_info.symbol',
                                                                    'disease.efo_info.*']
                                                            )
         items = len(response)
-        self.assertGreater(len(response),0)
+        self.assertGreater(len(response), 0)
         csv = response.to_csv()
-        open('test.csv','wb').write(csv.encode('utf-8'))
+        open('test.csv', 'wb').write(csv.encode('utf-8'))
         self.assertEqual(len(csv.split('\n')), items + 2)
 
     def testResultToPandasExcel(self):
         target_symbol = 'BRAF'
         response = self.client.get_associations_for_target(target_symbol,
-                                                           fields=['association_score.*', 'target.gene_info.symbol',
+                                                           fields=['association_score.*',
+                                                                   'target.gene_info.symbol',
                                                                    'disease.efo_info.*']
                                                            )
-        self.assertGreater(len(response),0)
+        self.assertGreater(len(response), 0)
         response.to_excel('test.xls')
 
     def testSerialiseToNamedtuple(self):
         target_symbol = 'BRAF'
         response = self.client.get_associations_for_target(target_symbol)
         items = len(response)
-        self.assertGreater(len(response),0)
+        self.assertGreater(len(response), 0)
         nt_output = list(response.to_namedtuple())
-        for i,result in enumerate(nt_output):
+        for i, result in enumerate(nt_output):
             self.assertIsNotNone(result.target.id)
-        self.assertEqual(items, i+1)
-
+        self.assertEqual(items, i + 1)
 
     def testGetStats(self):
         response = self.client.get_stats()
         self.assertEquals(len(response), 0)
 
     def testAutodetectPost(self):
-        self.assertFalse(Connection._auto_detect_post({'target':['ENSG00000157764']}))
+        self.assertFalse(Connection._auto_detect_post({'target': ['ENSG00000157764']}))
         self.assertTrue(Connection._auto_detect_post({'target': ['ENSG00000157764',
                                                                  'ENSG00000171862',
                                                                  'ENSG00000136997',
                                                                  'ENSG00000012048',
                                                                  'ENSG00000139618',
                                                                  ]}))
+
     def testGetToPost(self):
         response = self.client.conn.get('/public/association/filter', params={'target': ['ENSG00000157764',
-                                                                 'ENSG00000171862',
-                                                                 'ENSG00000136997',
-                                                                 'ENSG00000012048',
-                                                                 'ENSG00000139618',
-                                                                 ]})
+                                                                                         'ENSG00000171862',
+                                                                                         'ENSG00000136997',
+                                                                                         'ENSG00000012048',
+                                                                                         'ENSG00000139618',
+                                                                                         ]})
         self.assertGreater(len(response), 0)
+
+    def testCustomScore(self):
+        def score_with_datatype_subset(datatypes, results):
+            for r in results:
+                datatype_scores = r['association_score']['datatypes']
+                filtered_scores = [datatype_scores[dt] for dt in datatypes]
+                custom_score = HarmonicSumScorer.harmonic_sum(filtered_scores)
+                if custom_score:
+                    yield (round(custom_score, 3), r['disease']['id'], dict(zip(datatypes, filtered_scores)))
+
+        target_symbol = 'BRAF'
+        response = self.client.get_associations_for_target(target_symbol)
+        self.assertGreater(len(response), 0)
+        for i, filtered_data in enumerate(score_with_datatype_subset(['genetic_association',
+                                                                      'known_drug',
+                                                                      'somatic_mutation'],
+                                                                     response)):
+            self.assertGreater(filtered_data[0], 0.)
+
+        self.assertLess(i, len(response))
