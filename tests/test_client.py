@@ -172,10 +172,18 @@ class OpenTargetClientTest(unittest.TestCase):
 
     def testSerialiseToJson(self):
         target_symbol = 'BRAF'
-        response = self.client.search(target_symbol)
+        '''test iterable version'''
+        response = self.client.get_associations_for_target(target_symbol)
         items = len(response)
         self.assertGreater(len(response),0)
         json_output = response.to_json()
+        parsed_json = [json.loads(i) for i in json_output]
+        self.assertEqual(items, len(parsed_json))
+        '''test non iterable version'''
+        response = self.client.get_associations_for_target(target_symbol)
+        items = len(response)
+        self.assertGreater(len(response), 0)
+        json_output = response.to_json(iterable=False)
         parsed_json = json.loads(json_output)
         self.assertEqual(items, len(parsed_json))
 

@@ -427,9 +427,17 @@ class IterableResult(object):
     def _validate_filter(self,filter_type, value):
         self.conn.validate_parameter(self._args[0], filter_type, value)
 
-    def to_json(self, **kwargs):
-        '''transforms a result back to json. kwargs will be passed to json.dumps'''
+    def to_json(self,iterable=True, **kwargs):
+        '''
+        transforms a result back to json. kwargs will be passed to json.dumps
+        :param iterable: If True will yield a json string for each result and convert them dinamically as they are fetched from the api. If False gets all the results and returns a singl json string.
+        :param kwargs: params passed to json.dumps method
+        :return: an iterator of json strings or a single json string
+        '''
+        if iterable:
+            return (json.dumps(i) for i in self)
         return IterableResultSimpleJSONEncoder(**kwargs).encode(self)
+
 
     def to_dataframe(self, compress_lists = False,**kwargs):
         if pandas_available:

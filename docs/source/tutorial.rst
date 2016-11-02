@@ -40,7 +40,8 @@ get evidence for a target:
 ::
 
     e_for_target = ot.get_evidence_for_target('BRAF')
-    print(e_for_target.to_json())
+    for evidence_json in e_for_target.to_json():
+        print(evidence_json)
 
 get evidence for a disease:
 ::
