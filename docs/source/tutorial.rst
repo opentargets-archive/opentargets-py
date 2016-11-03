@@ -12,6 +12,12 @@ import the high level client
 
     from opentargets import OpenTargetsClient
     ot = OpenTargetsClient()
+    
+or if you have an API key
+::
+
+    from opentargets import OpenTargetsClient
+    ot = OpenTargetsClient(auth_app_name=<YOUR_APIKEY_APPNAME>, auth_secret=<YOUR_APIKEY_SECRET>,)
 
 search for a target:
 ::
