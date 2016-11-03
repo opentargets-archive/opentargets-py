@@ -340,6 +340,12 @@ class Connection(object):
 
         raise AttributeError('{}={} is not a valid parameter for endpoint {}'.format(filter_type, value, endpoint))
 
+    def api_endpoint_docs(self, endpoint):
+        return self.api_specs['paths'][endpoint]
+
+    def get_api_endpoints(self):
+        return self.api_specs['paths'].keys()
+
     def close(self):
         self.session.close()
 
