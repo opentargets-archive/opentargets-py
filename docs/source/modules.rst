@@ -24,3 +24,10 @@ opentargets.conn module
     :undoc-members:
     :show-inheritance:
 
+opentargets.statistics module
+-----------------------------
+
+.. automodule:: opentargets.statistics
+    :members:
+    :undoc-members:
+    :show-inheritance:
