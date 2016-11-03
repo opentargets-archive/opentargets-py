@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='opentargets',
-      version='1.2.0b2',
+      version='1.2.0',
       description='Client for Open Targets REST API at targetvalidation.org',
       author='Andrea Pierleoni',
       author_email='andreap@ebi.ac.uk',
