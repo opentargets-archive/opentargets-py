@@ -207,7 +207,7 @@ class Connection(object):
         """
         Args:
             host (str): host serving the API
-            port (str): port to use for connection to the API
+            port (int): port to use for connection to the API
             api_version (str): api version to point to, default to 'latest'
             auth_app_name (str): app_name if using authentication
             auth_secret (str): secret if using authentication
