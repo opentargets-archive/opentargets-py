@@ -29,8 +29,9 @@ class OpenTargetsClient(object):
                  ):
         """
         Init the client and start a connection
+
         Keyword Args:
-            **kwargs: all params forwarded to opentargets.conn.Connection object
+            **kwargs: all params forwarded to ``opentargets.conn.Connection`` object
         """
         self.conn = Connection(**kwargs)
 
@@ -47,10 +48,11 @@ class OpenTargetsClient(object):
         """
         Search a string and return a list of objects form the search method of the REST API.
         E.g. A returned object could be a target or a disease
+
         Args:
             query (str): string to search for
         Keyword Args:
-            **kwargs are passed as other parameters to the /public/search method of the REST API
+            **kwargs: are passed as other parameters to the /public/search method of the REST API
 
         Returns:
             IterableResult: Result of the query
@@ -67,7 +69,7 @@ class OpenTargetsClient(object):
         Args:
             association_id (str): Association ID
         Keyword Args:
-            **kwargs are passed as other parameters to the /public/association method of the REST API
+            **kwargs: are passed as other parameters to the /public/association method of the REST API
 
         Returns:
              IterableResult: Result of the query
@@ -80,8 +82,9 @@ class OpenTargetsClient(object):
     def filter_associations(self,**kwargs):
         """
         Retrieve a set of associations by applying a set of filters
+
         Keyword Args:
-            **kwargs are passed as parameters to the /public/association/filterby method of the REST API
+            **kwargs: are passed as parameters to the /public/association/filterby method of the REST API
 
         Returns:
             IterableResult: Result of the query
@@ -94,10 +97,11 @@ class OpenTargetsClient(object):
         """
         Same as ``OpenTargetsClient.filter_associations`` but accept any string as `target` parameter and fires a search
         if it is not an Ensembl Gene identifier
+
         Args:
             target (str): an Ensembl Gene identifier or a string to search for a gene mapping
         Keyword Args:
-            **kwargs are passed as parameters to the /public/association/filterby method of the REST API
+            **kwargs: are passed as parameters to the /public/association/filterby method of the REST API
         Returns:
             IterableResult: Result of the query
         """
@@ -117,10 +121,11 @@ class OpenTargetsClient(object):
         """
         Same as ``OpenTargetsClient.filter_associations`` but accept any string as `disease` parameter and
         fires a search if it is not a valid disease identifier
+
         Args:
             disease (str): a disease identifier or a string to search for a disease mapping
         Keyword Args:
-            **kwargs are passed as parameters to the /public/association/filterby method of the REST API
+            **kwargs: are passed as parameters to the /public/association/filterby method of the REST API
         Returns:
             IterableResult: Result of the query
         """
@@ -139,10 +144,11 @@ class OpenTargetsClient(object):
     def get_evidence(self, evidence_id, **kwargs):
         """
         Retrieve a specific Evidence object from the REST API provided its ID
+
         Args:
             evidence_id:
         Keyword Args:
-            **kwargs are passed as other parameters to the /public/evidence method of the REST API
+            **kwargs: are passed as other parameters to the /public/evidence method of the REST API
 
         Returns:
              IterableResult: Result of the query
@@ -155,8 +161,9 @@ class OpenTargetsClient(object):
     def filter_evidence(self,**kwargs):
         """
         Retrieve a set of evidence by applying a set of filters
+
         Keyword Args:
-            **kwargs are passed as parameters to the /public/evidence/filterby method of the REST API
+            **kwargs: are passed as parameters to the /public/evidence/filterby method of the REST API
 
         Returns:
             IterableResult: Result of the query
@@ -169,10 +176,11 @@ class OpenTargetsClient(object):
         """
         Same as ``OpenTargetsClient.filter_evidence`` but accept any string as `target` parameter and fires a search
         if it is not an Ensembl Gene identifier
+
         Args:
             target (str): an Ensembl Gene identifier or a string to search for a gene mapping
         Keyword Args:
-            **kwargs are passed as parameters to the /public/evidence/filterby method of the REST API
+            **kwargs: are passed as parameters to the /public/evidence/filterby method of the REST API
         Returns:
             IterableResult: Result of the query
         """
@@ -192,10 +200,11 @@ class OpenTargetsClient(object):
         """
         Same as ``OpenTargetsClient.filter_evidence`` but accept any string as `disease` parameter and
         fires a search if it is not a valid disease identifier
+
         Args:
-            t (str): a disease identifier or a string to search for a disease mapping
+            disease (str): a disease identifier or a string to search for a disease mapping
         Keyword Args:
-            **kwargs are passed as parameters to the /public/evidence/filterby method of the REST API
+            **kwargs: are passed as parameters to the /public/evidence/filterby method of the REST API
         Returns:
             IterableResult: Result of the query
         """
@@ -214,6 +223,7 @@ class OpenTargetsClient(object):
     def get_stats(self):
         """
         Returns statistics about the data served by the REST API
+
         Returns:
             IterableResult: Result of the query
         """
