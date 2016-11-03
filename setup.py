@@ -12,7 +12,7 @@ setup(name='opentargets',
       url='https://github.com/CTTV/opentargets-py',
       packages=['opentargets'],
       license='Apache 2.0',
-      download_url='https://github.com/CTTV/opentargets-py/tarball/1.2.0a1',
+      download_url='https://github.com/CTTV/opentargets-py/tarball/1.2.0',
       keywords = ['opentargets', 'bioinformatics', 'python3'],
       install_requires=[
           'requests==2.11.1',
