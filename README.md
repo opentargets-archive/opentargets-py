@@ -16,8 +16,9 @@ Why should you use this client instead of the REST API directly?
 - Experimental HTTP2 support for better performance (beware the client library is in alpha)
 
 This client is supported for Python 3.5 and upper.
-Works on lower version (including python 2) on a best effort basis.
+Works on pythoon 2.7 on a best effort basis.
 
+Documentation is available on [ReadTheDocs](http://opentargets.readthedocs.io/en/latest/?badge=latest)
 
 QUICK START
 ===========

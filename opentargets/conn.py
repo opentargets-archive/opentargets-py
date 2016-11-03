@@ -37,13 +37,17 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 def flatten(d, parent_key='', separator='.'):
-    '''
-    takes a nested dictionary as input and generate a flat one with keys separated by the separator
-    :param d: dictionary
-    :param parent_key: a prefix for all flattened keys
-    :param separator: separator between nested keys
-    :return: flattened dictionary
-    '''
+    """
+    Takes a nested dictionary as input and generate a flat one with keys separated by the separator
+
+    Args:
+        d (dict): dictionary
+        parent_key (str): a prefix for all flattened keys
+        separator (str): separator between nested keys
+
+    Returns:
+        dict: a flattened dictionary
+    """
     flat_fields = []
     for k, v in d.items():
         flat_key = parent_key + separator + k if parent_key else k
@@ -54,12 +58,14 @@ def flatten(d, parent_key='', separator='.'):
     return dict(flat_fields)
 
 def compress_list_values(d, sep='|'):
-    '''
+    """
+    Args:
+        d (dict): dictionary
+        sep (str): separator char used to join list element
 
-    :param d: dictionary
-    :param sep: separator char used to join list element
-    :return: dictionary with compressed lists
-    '''
+    Returns:
+        dict: dictionary with compressed lists
+    """
     for k, v in d.items():
         if not isinstance(v, (str, int, float)):
             if isinstance(v, collections.Sequence):
@@ -90,9 +96,17 @@ class HTTPMethods(object):
 
 
 class Response(object):
-    ''' Handler for responses from the api'''
+    """
+    Handler for responses coming from the api
+    """
 
     def __init__(self, response, content_type = 'json'):
+        """
+
+        Args:
+            response: a response coming from a requests call
+            content_type (str): content type of the response
+        """
         self._logger =logging.getLogger(__name__)
         if content_type == 'json':
             parsed_response = response.json()
@@ -157,6 +171,9 @@ class Response(object):
 
 
 class Connection(object):
+    """
+    Handler for connection and calls to the Open Targets Validation Platform REST API
+    """
 
     _AUTO_GET_TOKEN = 'auto'
 
@@ -168,15 +185,15 @@ class Connection(object):
                  auth_secret = None,
                  use_http2=False,
                  ):
-        '''
-
-        :param host: host to point to
-        :param port: port to use for connection
-        :param api_version: api version, default to latest
-        :param auth_app_name: app_name if using auth
-        :param auth_secret: secret if using auth
-        :param use_http2: activate http2 client
-        '''
+        """
+        Args:
+            host (str): host serving the API
+            port (str): port to use for connection to the API
+            api_version (str): api version to point to, default to 'latest'
+            auth_app_name (str): app_name if using authentication
+            auth_secret (str): secret if using authentication
+            use_http2 (bool): use http2 client
+        """
         self._logger = logging.getLogger(__name__)
         self.host = host
         self.port = port
@@ -204,6 +221,16 @@ class Connection(object):
                                        endpoint,)
     @staticmethod
     def _auto_detect_post(params):
+        """
+        Determine if a post request should be made instead of a get depending on the size of the parameters
+        in the request.
+
+        Args:
+            params (dict): params to pass in the request
+
+        Returns:
+            Boolean: True if post is needed
+        """
         if params:
             for k,v in params.items():
                 if isinstance(v, (list, tuple)):
@@ -212,6 +239,15 @@ class Connection(object):
         return False
 
     def get(self, endpoint, params=None):
+        """
+        makes a GET request
+        Args:
+            endpoint (str): REST API endpoint to call
+            params (dict): request payload
+
+        Returns:
+            Response: request response
+        """
         if self._auto_detect_post(params):
             self._logger.debug('switching to POST due to big size of params')
             return self.post(endpoint, data=params)
@@ -220,12 +256,29 @@ class Connection(object):
                               method='GET'))
 
     def post(self, endpoint, data=None):
+        """
+        makes a POST request
+        Args:
+            endpoint (str): REST API endpoint to call
+            data (dict): request payload
+
+        Returns:
+            Response: request response
+        """
         return Response(self._make_request(endpoint,
                                data=data,
                                method='POST'))
 
 
     def _make_token_request(self, expire = 10*60):
+        """
+        Asks for a token to the API
+        Args:
+            expire (int): expiration time for the token
+
+        Returns:
+            response for the get token request
+        """
         return self._make_request('/public/auth/request_token',
                                   data={'app_name':self.auth_app_name,
                                         'secret':self.auth_secret,
@@ -233,6 +286,14 @@ class Connection(object):
                                   )
 
     def get_token(self, expire = 10*60):
+        """
+        Asks for a token to the API
+        Args:
+            expire (int): expiration time for the token
+
+        Returns:
+            str: the token served by the API
+        """
         response = self._make_token_request(expire)
         return response.json()['token']
 
@@ -240,10 +301,26 @@ class Connection(object):
                       endpoint,
                       params = None,
                       data = None,
-                      method = "GET",
+                      method = HTTPMethods.GET,
                       headers = {},
                       rate_limit_fail = False,
                       **kwargs):
+        """
+        Makes a request to the REST API
+        Args:
+            endpoint (str): endpoint of the REST API
+            params (dict): payload for GET request
+            data (dict): payload for POST request
+            method (HTTPMethods): request method, either HTTPMethods.GET or HTTPMethods.POST. Defaults to HTTPMethods.GET
+            headers (dict): HTTP headers for the request
+            rate_limit_fail (bool): If True raise exception when usage limit is exceeded. If False wait and
+                retry the request. Defaults to False.
+        Keyword Args:
+            forwarded to requests
+
+        Returns:
+            a response from requests
+        """
 
         def call():
             headers['User-agent']='Open Targets Python Client/%s'%str(VERSION)
@@ -292,6 +369,9 @@ class Connection(object):
         return response
 
     def _update_token(self):
+        """
+        Update token when expired
+        """
         if self.token:
             token_valid_response = self._make_request('/public/auth/validate_token',
                                                        headers={'Auth-Token':self.token})
@@ -305,6 +385,9 @@ class Connection(object):
         self.token = self.get_token()
 
     def _get_remote_api_specs(self):
+        """
+        Fetch and parse REST API documentation
+        """
         r= self.session.get(self.host+'/api/docs/swagger.yaml')
         r.raise_for_status()
         self.swagger_yaml = r.text
@@ -329,6 +412,17 @@ class Connection(object):
             self._logger.warning('The remote server is running the API with version {}, but the client expected {}. They may not be compatible.'.format(remote_version, VERSION))
 
     def validate_parameter(self, endpoint, filter_type, value, method=HTTPMethods.GET):
+        """
+        Validate payload to send to the REST API based on info fetched from the API documentation
+        Args:
+            endpoint (str): endpoint of the REST API
+            filter_type (str): the parameter sent for the request
+            value: the value sent for the request
+            method (HTTPMethods): request method, either HTTPMethods.GET or HTTPMethods.POST. Defaults to HTTPMethods.GET
+        Raises
+            AttributeError: if validation is not passed
+
+        """
         endpoint_data = self.endpoint_validation_data[endpoint][method]
         if filter_type in endpoint_data:
             if endpoint_data[filter_type] == 'string' and isinstance(value, str):
@@ -341,25 +435,57 @@ class Connection(object):
         raise AttributeError('{}={} is not a valid parameter for endpoint {}'.format(filter_type, value, endpoint))
 
     def api_endpoint_docs(self, endpoint):
+        """
+        Returns the documentation available for a given REST API endpoint
+        Args:
+            endpoint (str): endpoint of the REST API
+
+        Returns:
+            dict: documentation for the endpoint parsed from YAML docs
+        """
         return self.api_specs['paths'][endpoint]
 
     def get_api_endpoints(self):
+        """
+        Get a list of available endpoints
+        Returns:
+            list: available endpoints
+        """
         return self.api_specs['paths'].keys()
 
     def close(self):
+        """
+        Close connection to the REST API
+        """
         self.session.close()
 
 @implements_iterator
 class IterableResult(object):
     '''
-    proxy over the Connection class that allows to iterate over all the items returned from a query making multiple calls to the backend in API background
+    Proxy over the Connection class that allows to iterate over all the items returned from a quer.
+    It will automatically handle making multiple calls for pagination if needed.
     '''
     def __init__(self, conn, method = HTTPMethods.GET):
+        """
+        Requires a Connection
+        Args:
+            conn (Connection): a Connection instance
+            method (HTTPMethods): HTTP method to use for the calls
+        """
         self.conn = conn
         self.method = method
 
     def __call__(self, *args, **kwargs):
+        """
+        Allows to set parameters for calls to the REST API
+        Args:
+            *args: stored internally
+        Keyword Args:
+            **kwargs: stored internally
 
+        Returns:
+            IterableResult: returns itself
+        """
         self._args = args
         self._kwargs = kwargs
         response = self._make_call()
@@ -375,6 +501,13 @@ class IterableResult(object):
         return self
 
     def filter(self, **kwargs):
+        """
+        Applies a set of filters to the current query
+        Keyword Args
+            **kwargs: passed to the REST API
+        Returns:
+            IterableResult: an IterableResult with applied filters
+        """
         if kwargs:
             for filter_type, filter_value in kwargs.items():
                 self._validate_filter(filter_type, filter_value)
@@ -384,6 +517,13 @@ class IterableResult(object):
 
 
     def _make_call(self):
+        """
+        makes calls to the REST API
+        Returns:
+            Response: response for a call
+        Raises:
+            AttributeError: if HTTP method is not supported
+        """
         if self.method == HTTPMethods.GET:
             return self.conn.get(*self._args, params=self._kwargs)
         elif self.method == HTTPMethods.POST:
@@ -437,21 +577,52 @@ class IterableResult(object):
             return next(islice(self, x, None), None)
 
     def _validate_filter(self,filter_type, value):
+        """
+        validate the provided filter versus the REST API documentation
+        Args:
+            filter_type (str): filter for the REST API call
+            value: the value passed
+
+       Raises
+            AttributeError: if validation is not passed
+
+        """
         self.conn.validate_parameter(self._args[0], filter_type, value)
 
     def to_json(self,iterable=True, **kwargs):
-        '''
-        transforms a result back to json. kwargs will be passed to json.dumps
-        :param iterable: If True will yield a json string for each result and convert them dinamically as they are fetched from the api. If False gets all the results and returns a singl json string.
-        :param kwargs: params passed to json.dumps method
-        :return: an iterator of json strings or a single json string
-        '''
+        """
+
+        Args:
+            iterable: If True will yield a json string for each result and convert them dinamically as they are
+                fetched from the api. If False gets all the results and returns a singl json string.
+        Keyword Args:
+            forwarded to json.dumps
+
+        Returns:
+            an iterator of json strings or a single json string
+        """
         if iterable:
             return (json.dumps(i) for i in self)
         return IterableResultSimpleJSONEncoder(**kwargs).encode(self)
 
 
     def to_dataframe(self, compress_lists = False,**kwargs):
+        """
+        Create a Pandas dataframe from a flattened version of the response.
+
+        Args:
+            compress_lists: if a value is a list, serialise it to a string with '|' as separator
+        Keyword Args:
+            forwarded to pandas.DataFrame.from_dict
+
+        Returns:
+            pandas.DataFrame: A DataFrame with all the data coming from the query in the REST API
+        Notes:
+            Requires Pandas to be installed.
+        Raises:
+            ImportError: if Pandas is not available
+
+        """
         if pandas_available:
             data = [flatten(i) for i in self]
             if compress_lists:
@@ -462,16 +633,48 @@ class IterableResult(object):
             raise ImportError('Pandas library is not installed but is required to create a dataframe')
 
     def to_csv(self, **kwargs):
+        """
+        Create a csv file from a flattened version of the response.
+
+        Keyword Args:
+            forwarded to pandas.DataFrame.to_csv
+        Returns:
+            output of pandas.DataFrame.to_csv
+        Notes:
+            Requires Pandas to be installed.
+        Raises:
+            ImportError: if Pandas is not available
+
+        """
         return self.to_dataframe(compress_lists=True).to_csv(**kwargs)
 
 
     def to_excel(self, excel_writer, **kwargs):
+        """
+        Create a excel (xls) file from a flattened version of the response.
+
+        Keyword Args:
+            forwarded to pandas.DataFrame.to_excel
+        Returns:
+            output of pandas.DataFrame.to_excel
+        Notes:
+            Requires Pandas and xlwt to be installed.
+        Raises:
+            ImportError: if Pandas or xlwt are not available
+
+        """
         if xlwt_available:
-            return self.to_dataframe(compress_lists=True).to_excel(excel_writer, **kwargs)
+            self.to_dataframe(compress_lists=True).to_excel(excel_writer, **kwargs)
         else:
             raise ImportError('xlwt library is not installed but is required to create an excel file')
 
     def to_namedtuple(self):
+        """
+        Converts dictionary in the data to namedtyuple. Useful for interactive data exploration on IPython
+            and similar tools
+        Returns:
+            iterator: an iterator of namedtupled
+        """
         return (dict_to_nested_namedtuple(i, named_tuple_class_name='Data') for i in self)
 
 
@@ -480,24 +683,3 @@ class IterableResultSimpleJSONEncoder(JSONEncoder):
         '''extends JsonEncoder to support IterableResult'''
         if isinstance(o, IterableResult):
             return list(o)
-
-
-
-
-
-if __name__=='__main__':
-    conn= Connection(host='https://mirror.targetvalidation.org')
-
-    print(conn._build_url('/public/search'))
-    '''test cache'''
-    for i in range(5):
-        start_time = time.time()
-        conn.get('/public/search', {'q':'braf'})
-        print(time.time()-start_time, 'seconds')
-    '''test response'''
-    r=conn.get('/public/search', {'q':'braf'})
-    print(r.usage.remaining.minimum)
-    print(r.info)
-    print(r.usage)
-    for i,d in enumerate(r.data):
-        print(i,d.id, d.type, d.data['approved_symbol'])
