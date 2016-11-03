@@ -80,10 +80,29 @@ def compress_list_values(d, sep='|'):
 
 
 def dict_to_namedtuple(d, named_tuple_class_name='Result', rename=True):
+    """
+    Converts a dictionary to a namedtuple
+    Args:
+        d (dict): dictionary
+        named_tuple_class_name: Name of the namedtuple class
+        rename (bool): rename unsafe fields. Defaults to True
+
+    Returns:
+        namedtuple: the converted namedtuple
+    """
     return namedtuple(named_tuple_class_name, d.keys(), rename=rename)(*d.values())
 
 
-def dict_to_nested_namedtuple(d, named_tuple_class_name='Result', ):
+def dict_to_nested_namedtuple(d, named_tuple_class_name='Result' ):
+    """
+        Recursively converts a dictionary to a namedtuple
+        Args:
+            d (dict): dictionary
+            named_tuple_class_name: Name of the namedtuple class
+
+        Returns:
+            namedtuple: the converted namedtuple
+        """
     for key, value in d.items():
         if isinstance(value, dict):
             d[key] = dict_to_nested_namedtuple(value, named_tuple_class_name = named_tuple_class_name)
@@ -316,7 +335,7 @@ class Connection(object):
             rate_limit_fail (bool): If True raise exception when usage limit is exceeded. If False wait and
                 retry the request. Defaults to False.
         Keyword Args:
-            forwarded to requests
+            **kwargs: forwarded to requests
 
         Returns:
             a response from requests
@@ -414,6 +433,7 @@ class Connection(object):
     def validate_parameter(self, endpoint, filter_type, value, method=HTTPMethods.GET):
         """
         Validate payload to send to the REST API based on info fetched from the API documentation
+
         Args:
             endpoint (str): endpoint of the REST API
             filter_type (str): the parameter sent for the request
@@ -437,6 +457,7 @@ class Connection(object):
     def api_endpoint_docs(self, endpoint):
         """
         Returns the documentation available for a given REST API endpoint
+
         Args:
             endpoint (str): endpoint of the REST API
 
@@ -448,6 +469,7 @@ class Connection(object):
     def get_api_endpoints(self):
         """
         Get a list of available endpoints
+
         Returns:
             list: available endpoints
         """
@@ -596,7 +618,7 @@ class IterableResult(object):
             iterable: If True will yield a json string for each result and convert them dinamically as they are
                 fetched from the api. If False gets all the results and returns a singl json string.
         Keyword Args:
-            forwarded to json.dumps
+            **kwargs: forwarded to json.dumps
 
         Returns:
             an iterator of json strings or a single json string
@@ -613,7 +635,7 @@ class IterableResult(object):
         Args:
             compress_lists: if a value is a list, serialise it to a string with '|' as separator
         Keyword Args:
-            forwarded to pandas.DataFrame.from_dict
+            **kwargs: forwarded to pandas.DataFrame.from_dict
 
         Returns:
             pandas.DataFrame: A DataFrame with all the data coming from the query in the REST API
@@ -637,7 +659,7 @@ class IterableResult(object):
         Create a csv file from a flattened version of the response.
 
         Keyword Args:
-            forwarded to pandas.DataFrame.to_csv
+            **kwargs: forwarded to pandas.DataFrame.to_csv
         Returns:
             output of pandas.DataFrame.to_csv
         Notes:
@@ -654,7 +676,7 @@ class IterableResult(object):
         Create a excel (xls) file from a flattened version of the response.
 
         Keyword Args:
-            forwarded to pandas.DataFrame.to_excel
+            **kwargs: forwarded to pandas.DataFrame.to_excel
         Returns:
             output of pandas.DataFrame.to_excel
         Notes:
