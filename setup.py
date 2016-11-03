@@ -18,6 +18,7 @@ setup(name='opentargets',
           'requests==2.11.1',
           'cachecontrol==0.11.6',
           'hyper==0.7.0',
+          'h2==2.4.2',
           'future==0.16.0',
           'PyYAML'],
       extras_require={
