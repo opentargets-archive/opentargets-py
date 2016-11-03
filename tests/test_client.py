@@ -277,3 +277,10 @@ class OpenTargetClientTest(unittest.TestCase):
     def testGetEndpointDocs(self):
         docs = self.client.conn.api_endpoint_docs('/public/search')
         self.assertGreater(len(docs['get']['parameters']),0)
+
+    def testPing(self):
+        response = self.client.conn.ping()
+        if isinstance(response, bool):
+            self.assertTrue(response)
+        else:
+            self.assertIsNotNone(response)

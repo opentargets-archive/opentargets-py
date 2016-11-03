@@ -8,6 +8,7 @@ import json
 import logging
 from collections import namedtuple
 from itertools import islice
+from json import JSONDecodeError
 from json import JSONEncoder
 
 import collections
@@ -119,7 +120,7 @@ class Response(object):
     Handler for responses coming from the api
     """
 
-    def __init__(self, response, content_type = 'json'):
+    def __init__(self, response):
         """
 
         Args:
@@ -127,7 +128,7 @@ class Response(object):
             content_type (str): content type of the response
         """
         self._logger =logging.getLogger(__name__)
-        if content_type == 'json':
+        try:
             parsed_response = response.json()
             if isinstance(parsed_response, dict):
                 if 'data' in parsed_response:
@@ -143,11 +144,14 @@ class Response(object):
             else:
                 self.data = parsed_response
                 self.info = {}
-            self._headers = response.headers
-            self._parse_usage_data()
 
-        else:
-            raise AttributeError("content-type not supported")
+
+        except JSONDecodeError:
+            self.data = response.text
+            self.info = {}
+
+        self._headers = response.headers
+        self._parse_usage_data()
 
     def __str__(self):
         data = str(self.data)
@@ -480,6 +484,19 @@ class Connection(object):
         Close connection to the REST API
         """
         self.session.close()
+
+    def ping(self):
+        """
+        Pings the API as a live check
+        Returns:
+            bool: True if pinging the raw response as a ``str`` if the API has a non standard name
+        """
+        response = self.get('/public/utils/ping')
+        if response.data=='pong':
+            return True
+        elif response.data:
+            return response.data
+        return False
 
 @implements_iterator
 class IterableResult(object):

@@ -8,9 +8,10 @@ Changelog
 - added statistics module to allow score computation on subset of data
 - improved fetching efficiency for big requests
 - to_json method works with iterator pattern
-- improved docs
+- improved docs, and changed to Google Style
 - set specific user agent for requests sent
 - added methods to explore the REST API documentation and available endpoints
+- added ping method to check for the api to be reachable
 
 1.2.0b1
 -------
