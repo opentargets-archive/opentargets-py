@@ -8,9 +8,7 @@ import json
 import logging
 from collections import namedtuple
 from itertools import islice
-from json import JSONDecodeError
 from json import JSONEncoder
-
 import collections
 import requests
 from cachecontrol import CacheControl
@@ -146,7 +144,7 @@ class Response(object):
                 self.info = {}
 
 
-        except JSONDecodeError:
+        except ValueError:
             self.data = response.text
             self.info = {}
 
