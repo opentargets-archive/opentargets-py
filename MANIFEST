@@ -3,3 +3,4 @@ setup.cfg
 setup.py
 opentargets/__init__.py
 opentargets/conn.py
+opentargets/statistics.py
