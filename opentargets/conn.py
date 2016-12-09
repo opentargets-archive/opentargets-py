@@ -2,8 +2,7 @@
 This module abstracts the connection to the Open Targets REST API to simplify its usage.
 Can be used directly but requires some knowledge of the API.
 """
-
-
+import gzip
 import json
 import logging
 from collections import namedtuple
@@ -17,6 +16,7 @@ from h2.utilities import CONNECTION_HEADERS as INVALID_HTTP2_HEADERS
 import time
 from future.utils import implements_iterator
 import yaml
+from requests.packages.urllib3.exceptions import MaxRetryError
 
 try:
     import pandas
@@ -30,7 +30,13 @@ try:
 except ImportError:
     xlwt_available = False
 
-VERSION=1.2
+try:
+    from tqdm import tqdm
+    tqdm_available = True
+except ImportError:
+    tqdm_available = False
+
+VERSION=2.0
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -291,7 +297,7 @@ class Connection(object):
                                method='POST'))
 
 
-    def _make_token_request(self, expire = 10*60):
+    def _make_token_request(self, expire = 20*60):
         """
         Asks for a token to the API
         Args:
@@ -301,9 +307,10 @@ class Connection(object):
             response for the get token request
         """
         return self._make_request('/public/auth/request_token',
-                                  data={'app_name':self.auth_app_name,
+                                  params={'app_name':self.auth_app_name,
                                         'secret':self.auth_secret,
                                         'expiry': expire},
+                                  headers={'Cache-Control':'no-cache',}
                                   )
 
     def get_token(self, expire = 10*60):
@@ -370,30 +377,43 @@ class Connection(object):
                 headers['Auth-Token']=self.token
 
         response = None
+        default_retry_after = 5
         if not rate_limit_fail:
             status_code = 429
             while status_code in [429,419]:
-                response = call()
-                status_code = response.status_code
-                if status_code == 429:
-                    retry_after=5
-                    if 'Retry-After' in response.headers:
-                        retry_after = float(response.headers['Retry-After'])
-                    self._logger.warning('Maximum usage limit hit. Retrying in {} seconds'.format(retry_after))
-                    time.sleep(retry_after)
-                elif  status_code == 419:
-                    self._update_token()
+                try:
+                    response = call()
+                    status_code = response.status_code
+                    if status_code == 429:
+                        retry_after=default_retry_after
+                        if 'Retry-After' in response.headers:
+                            retry_after = float(response.headers['Retry-After'])
+                        self._logger.warning('Maximum usage limit hit. Retrying in {} seconds'.format(retry_after))
+                        time.sleep(retry_after)
+                    elif status_code == 419:
+                        self._update_token(force = True)
+                        time.sleep(0.1)
+                except MaxRetryError as e:
+                    self._logger.exception(e.args[0].reason)
+                    self._logger.warning('Problem connecting to the remote API. Retrying in {} seconds'.format(default_retry_after))
+                    time.sleep(default_retry_after)
+                except OSError as e:
+                    self._logger.exception(str(e))
+                    self._logger.warning('Problem connecting to the remote API. Retrying in {} seconds'.format(default_retry_after))
+                    time.sleep(default_retry_after)
+
+
         else:
             response = call()
 
         response.raise_for_status()
         return response
 
-    def _update_token(self):
+    def _update_token(self, force = False):
         """
         Update token when expired
         """
-        if self.token:
+        if self.token and not force:
             token_valid_response = self._make_request('/public/auth/validate_token',
                                                        headers={'Auth-Token':self.token})
             if token_valid_response.status_code == 200:
@@ -531,8 +551,8 @@ class IterableResult(object):
         self.current = 0
         try:
             self.total = int(self.info.total)
-            if 'size' in self.info._fields:
-                self._kwargs['size']=10000
+            if 'size' in self.info._fields and  'size' not in self._kwargs:
+                self._kwargs['size']=1000
         except:
             self.total = len(self._data)
         return self
@@ -707,12 +727,28 @@ class IterableResult(object):
 
     def to_namedtuple(self):
         """
-        Converts dictionary in the data to namedtyuple. Useful for interactive data exploration on IPython
+        Converts dictionary in the data to namedtuple. Useful for interactive data exploration on IPython
             and similar tools
         Returns:
             iterator: an iterator of namedtupled
         """
         return (dict_to_nested_namedtuple(i, named_tuple_class_name='Data') for i in self)
+
+    def to_file(self, filename, compress=True, progress_bar = False):
+        if compress:
+            fh = gzip.open(filename, 'wb')
+        else:
+            fh = open(filename, 'wb')
+        if tqdm_available and progress_bar:
+            progress = tqdm(desc='Saving entries to file %s'%filename,
+                       total=len(self),
+                       unit_scale=True)
+        for datapoint in self:
+            line = json.dumps(datapoint)+'\n'
+            fh.write(line.encode('utf-8'))
+            if tqdm_available and progress_bar:
+                progress.update()
+        fh.close()
 
 
 class IterableResultSimpleJSONEncoder(JSONEncoder):

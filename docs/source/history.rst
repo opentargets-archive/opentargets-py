@@ -3,6 +3,12 @@
 Changelog
 =========
 
+2.0.0
+-----
+Compatible with REST API release 2.0
+- added option to save the json query result to a local file
+- bugfixes
+
 1.2.0
 -----
 - added statistics module to allow score computation on subset of data
