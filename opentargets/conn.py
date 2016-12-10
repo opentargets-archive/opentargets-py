@@ -223,7 +223,7 @@ class Connection(object):
         """
         self._logger = logging.getLogger(__name__)
         self.host = host
-        self.port = port
+        self.port = str(port)
         self.api_version = api_version
         self.auth_app_name = auth_app_name
         self.auth_secret = auth_secret
@@ -297,7 +297,7 @@ class Connection(object):
                                method='POST'))
 
 
-    def _make_token_request(self, expire = 20*60):
+    def _make_token_request(self, expire = 60):
         """
         Asks for a token to the API
         Args:
@@ -313,7 +313,7 @@ class Connection(object):
                                   headers={'Cache-Control':'no-cache',}
                                   )
 
-    def get_token(self, expire = 10*60):
+    def get_token(self, expire = 60):
         """
         Asks for a token to the API
         Args:
@@ -392,7 +392,8 @@ class Connection(object):
                         time.sleep(retry_after)
                     elif status_code == 419:
                         self._update_token(force = True)
-                        time.sleep(0.1)
+                        headers['Auth-Token'] = self.token
+                        time.sleep(0.5)
                 except MaxRetryError as e:
                     self._logger.exception(e.args[0].reason)
                     self._logger.warning('Problem connecting to the remote API. Retrying in {} seconds'.format(default_retry_after))
@@ -429,7 +430,7 @@ class Connection(object):
         """
         Fetch and parse REST API documentation
         """
-        r= self.session.get(self.host+'/api/docs/swagger.yaml')
+        r= self.session.get(self.host+':'+self.port+'/api/docs/swagger.yaml')
         r.raise_for_status()
         self.swagger_yaml = r.text
         self.api_specs = yaml.load(self.swagger_yaml)
