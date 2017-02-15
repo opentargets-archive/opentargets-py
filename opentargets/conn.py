@@ -211,6 +211,7 @@ class Connection(object):
                  auth_app_name = None,
                  auth_secret = None,
                  use_http2=False,
+                 verify=True
                  ):
         """
         Args:
@@ -237,7 +238,7 @@ class Connection(object):
         if self.use_http2:
             session.mount(host, HTTP20Adapter())
         self.session = CacheControl(session)
-        self._get_remote_api_specs()
+        self._get_remote_api_specs(verify=verify)
 
 
 
@@ -426,11 +427,11 @@ class Connection(object):
 
         self.token = self.get_token()
 
-    def _get_remote_api_specs(self):
+    def _get_remote_api_specs(self, verify=True):
         """
         Fetch and parse REST API documentation
         """
-        r= self.session.get(self.host+':'+self.port+'/api/docs/swagger.yaml')
+        r= self.session.get(self.host+':'+self.port+'/api/docs/swagger.yaml', verify = verify)
         r.raise_for_status()
         self.swagger_yaml = r.text
         self.api_specs = yaml.load(self.swagger_yaml)
