@@ -234,11 +234,12 @@ class Connection(object):
             self.use_auth = False
         self.token = None
         self.use_http2 = use_http2
+        self.verify = verify
         session= requests.Session()
         if self.use_http2:
             session.mount(host, HTTP20Adapter())
         self.session = CacheControl(session)
-        self._get_remote_api_specs(verify=verify)
+        self._get_remote_api_specs()
 
 
 
@@ -362,6 +363,7 @@ class Connection(object):
                                     params = params,
                                     json = data,
                                     headers = headers,
+                                    verify = self.verify
                                     **kwargs)
 
         'order params to allow efficient caching'
@@ -427,11 +429,11 @@ class Connection(object):
 
         self.token = self.get_token()
 
-    def _get_remote_api_specs(self, verify=True):
+    def _get_remote_api_specs(self):
         """
         Fetch and parse REST API documentation
         """
-        r= self.session.get(self.host+':'+self.port+'/api/docs/swagger.yaml', verify = verify)
+        r= self.session.get(self.host+':'+self.port+'/api/docs/swagger.yaml', verify = self.verify)
         r.raise_for_status()
         self.swagger_yaml = r.text
         self.api_specs = yaml.load(self.swagger_yaml)
