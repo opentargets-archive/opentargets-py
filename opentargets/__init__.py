@@ -9,9 +9,18 @@ logging.getLogger('opentargets').addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+__pkgname__ = 'opentargets'
+__author__ = 'OpenTargets Core Team <support@targetvalidation.org>'
+__license__ = 'Apache License, Version 2.0'
+__homepage__ = 'https://github.com/opentargets/opentargets-py'
+__version__ = '2.0.1'
+__description__ = 'Client for Open Targets REST API at targetvalidation.org'
+
+
 class OpenTargetsClient(object):
     """
-    Main class to use to get data from the Open Targets REST API available at targetvalidation.org (or your
+    Main class to use to get data from the Open Targets
+    REST API available at targetvalidation.org (or your
     private instance)
 
     """
@@ -230,5 +239,3 @@ class OpenTargetsClient(object):
         result = IterableResult(self.conn)
         result(self._stats_endpoint)
         return result
-
-

@@ -1,21 +1,19 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
+import opentargets as ot
 
-setup(name='opentargets',
-      version='2.0.0',
-      description='Client for Open Targets REST API at targetvalidation.org',
-      author='Andrea Pierleoni',
-      author_email='andreap@ebi.ac.uk',
-      maintainer='Open Targets Core Team',
-      maintainer_email='support@targetvalidation.org',
-      url='https://github.com/CTTV/opentargets-py',
+setup(name=ot.__pkgname__,
+      version=ot.__version__,
+      description=ot.__description__,
+      author=ot.__author__,
+      url=ot.__homepage__,
       packages=['opentargets'],
-      license='Apache 2.0',
-      download_url='https://github.com/CTTV/opentargets-py/tarball/2.0.0',
-      keywords = ['opentargets', 'bioinformatics', 'python3'],
+      license=ot.__license__,
+      download_url=ot.__homepage__ + '/archive/' + ot.__version__ + '.tar.gz',
+      keywords=['opentargets', 'bioinformatics', 'python3'],
       install_requires=[
-          'requests==2.11.1',
+          'requests>=2.11.1,<3.0',
           'cachecontrol==0.11.6',
           'hyper==0.7.0',
           'h2==2.4.2',

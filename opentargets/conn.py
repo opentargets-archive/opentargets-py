@@ -17,6 +17,7 @@ import time
 from future.utils import implements_iterator
 import yaml
 from requests.packages.urllib3.exceptions import MaxRetryError
+from opentargets import __version__
 
 try:
     import pandas
@@ -36,7 +37,7 @@ try:
 except ImportError:
     tqdm_available = False
 
-VERSION=2.0
+API_MAJOR_VERSION='2.'
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -351,7 +352,7 @@ class Connection(object):
         """
 
         def call():
-            headers['User-agent']='Open Targets Python Client/%s'%str(VERSION)
+            headers['User-agent']='Open Targets Python Client/%s'%str(__version__)
             if self.use_http2 and set(headers.keys())&INVALID_HTTP2_HEADERS:
                 for h in INVALID_HTTP2_HEADERS:
                     if h in headers:
@@ -448,10 +449,9 @@ class Connection(object):
                         params[par['name']]=par_type
                     self.endpoint_validation_data[p][method] = params
 
-
         remote_version = self.get('/public/utils/version').data
-        if remote_version != VERSION:
-            self._logger.warning('The remote server is running the API with version {}, but the client expected {}. They may not be compatible.'.format(remote_version, VERSION))
+        if remote_version.startswith(API_MAJOR_VERSION):
+            self._logger.warning('The remote server is running the API with version {}, but the client expected this major version {}. They may not be compatible.'.format(remote_version, API_MAJOR_VERSION))
 
     def validate_parameter(self, endpoint, filter_type, value, method=HTTPMethods.GET):
         """
