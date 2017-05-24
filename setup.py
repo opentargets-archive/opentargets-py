@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-from opentargets import __pkgname__, __version__, \
-     __description__, __author__, __homepage__, __license__
 
+# importing __<vars>__ into the namespace
+with open('opentargets/version.py') as fv:
+    exec(fv.read())
 
 setup(name=__pkgname__,
       version=__version__,

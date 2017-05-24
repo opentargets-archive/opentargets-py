@@ -17,7 +17,7 @@ import time
 from future.utils import implements_iterator
 import yaml
 from requests.packages.urllib3.exceptions import MaxRetryError
-from opentargets import __version__
+from opentargets.version import __version__, __api_major_version__
 
 try:
     import pandas
@@ -37,7 +37,7 @@ try:
 except ImportError:
     tqdm_available = False
 
-API_MAJOR_VERSION='2.'
+API_MAJOR_VERSION= __api_major_version__
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
