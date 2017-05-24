@@ -6,7 +6,7 @@ python:
 sudo: required
 install:
   - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then sudo apt-get install python-pandas; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then rm /home/travis/virtualenv/python2.7.12/lib/python2.7/no-global-site-packages.txt; fi
+  #- if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then rm /home/travis/virtualenv/python2.7.12/lib/python2.7/no-global-site-packages.txt; fi
   - pip install .
   - pip install -r requirements.txt
   - pip install  xlwt
