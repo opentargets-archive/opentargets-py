@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-import opentargets as ot
+from opentargets import __pkgname__, __version__, \
+     __description__, __author__, __homepage__, __license__
 
-setup(name=ot.__pkgname__,
-      version=ot.__version__,
-      description=ot.__description__,
-      author=ot.__author__,
-      url=ot.__homepage__,
+
+setup(name=__pkgname__,
+      version=__version__,
+      description=__description__,
+      author=__author__,
+      url=__homepage__,
       packages=['opentargets'],
-      license=ot.__license__,
-      download_url=ot.__homepage__ + '/archive/' + ot.__version__ + '.tar.gz',
+      license=__license__,
+      download_url=__homepage__ + '/archive/' + __version__ + '.tar.gz',
       keywords=['opentargets', 'bioinformatics', 'python3'],
       install_requires=[
           'requests>=2.11.1,<3.0',
