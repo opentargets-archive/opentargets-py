@@ -37,7 +37,7 @@ try:
 except ImportError:
     tqdm_available = False
 
-API_MAJOR_VERSION= __api_major_version__
+API_MAJOR_VERSION = __api_major_version__
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -132,8 +132,9 @@ class Response(object):
             response: a response coming from a requests call
             content_type (str): content type of the response
         """
-        self._logger =logging.getLogger(__name__)
+        self._logger = logging.getLogger(__name__)
         try:
+            # TODO parse from json just if content type allows it
             parsed_response = response.json()
             if isinstance(parsed_response, dict):
                 if 'data' in parsed_response:
@@ -147,6 +148,8 @@ class Response(object):
                 self.info = dict_to_namedtuple(parsed_response, named_tuple_class_name='ResultInfo')
 
             else:
+                # TODO because content type wasnt checked a string
+                # is converted to a float without notice
                 self.data = parsed_response
                 self.info = {}
 
@@ -450,7 +453,9 @@ class Connection(object):
                     self.endpoint_validation_data[p][method] = params
 
         remote_version = self.get('/public/utils/version').data
-        if remote_version.startswith(API_MAJOR_VERSION):
+        # TODO because content type wasnt checked proerly a float
+        # was returned instead a proper version string
+        if str(remote_version).startswith(API_MAJOR_VERSION):
             self._logger.warning('The remote server is running the API with version {}, but the client expected this major version {}. They may not be compatible.'.format(remote_version, API_MAJOR_VERSION))
 
     def validate_parameter(self, endpoint, filter_type, value, method=HTTPMethods.GET):
