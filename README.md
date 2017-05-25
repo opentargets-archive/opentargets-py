@@ -51,3 +51,22 @@ print(ot.get_stats().info)
 ...
 
 ```
+
+
+Contributing
+============
+
+To create a development environment:
+```sh
+git clone <this repo>
+cd opentargets-py
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+Some guidelines:
+- always start with `git checkout -b yourname-featureyouareadding`
+- when ready, submit a PR
+- Travis test have to pass before any PR can be merged
+
+Releases will automatically deploy to pypi (thanks to travis) once a tag/release is created in the github console. 
