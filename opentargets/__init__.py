@@ -1,7 +1,6 @@
 """
 This module communicate with the Open Targets REST API with a simple client, and requires not knowledge of the API.
 """
-
 from opentargets.conn import Connection, IterableResult
 
 import logging
@@ -9,9 +8,11 @@ logging.getLogger('opentargets').addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class OpenTargetsClient(object):
     """
-    Main class to use to get data from the Open Targets REST API available at targetvalidation.org (or your
+    Main class to use to get data from the Open Targets
+    REST API available at targetvalidation.org (or your
     private instance)
 
     """
@@ -22,7 +23,6 @@ class OpenTargetsClient(object):
     _filter_evidence_endpoint = '/public/evidence/filter'
     _get_evidence_endpoint = '/public/evidence'
     _stats_endpoint = '/public/utils/stats'
-
 
     def __init__(self,
                  **kwargs
@@ -230,5 +230,3 @@ class OpenTargetsClient(object):
         result = IterableResult(self.conn)
         result(self._stats_endpoint)
         return result
-
-
