@@ -4,8 +4,7 @@ python:
   - '3.5'
 sudo: required
 install:
-  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then sudo apt-get install python-pandas;
-  fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then sudo apt-get install python-pandas; fi
   - pip install .
   - pip install -r requirements.txt
   - pip install  xlwt
