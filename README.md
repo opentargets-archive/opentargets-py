@@ -64,9 +64,18 @@ virtualenv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
-Some guidelines:
-- always start with `git checkout -b yourname-featureyouareadding`
-- when ready, submit a PR
-- Travis test have to pass before any PR can be merged
+## How to contribute: 
+1. (if you are not part of the open targets team) fork the repo
+2. branch from master, always start with `git checkout -b yourname-featureyouareadding`
+2. code
+3. push your branch and submit a PR
+4. ask for reviews for your PR
+5. Travis tests have to pass
+6. Your PR is approved and merged
 
-Releases will automatically deploy to pypi (thanks to travis) once a tag/release is created in the github console. 
+## How to release
+1. Draft a new release https://github.com/opentargets/opentargets-py/releases/new
+2. add a tag using semantic versioning, pointing to `master`
+3. Press publish
+
+Releases will automatically deploy to pypi (thanks to travis) once they are created in the github console. 
