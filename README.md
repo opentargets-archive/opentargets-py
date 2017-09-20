@@ -1,7 +1,6 @@
 # opentargets-py
 Python client for the Open Targets REST API at targetvalidation.org
-
-[![Build Status](https://travis-ci.org/CTTV/opentargets-py.svg?branch=master)](https://travis-ci.org/CTTV/opentargets-py)
+[![Build Status](https://travis-ci.org/opentargets/opentargets-py.svg?branch=master)](https://travis-ci.org/opentargets/opentargets-py)
 [![Documentation Status](https://readthedocs.org/projects/opentargets/badge/?version=latest)](http://opentargets.readthedocs.io/en/latest/?badge=latest)
 
 Why should you use this client instead of the REST API directly?
@@ -52,3 +51,31 @@ print(ot.get_stats().info)
 ...
 
 ```
+
+
+Contributing
+============
+
+To create a development environment:
+```sh
+git clone <this repo>
+cd opentargets-py
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+## How to contribute: 
+1. (if you are not part of the open targets team) fork the repo
+2. branch from master, always start with `git checkout -b yourname-featureyouareadding`
+2. code
+3. push your branch and submit a PR
+4. ask for reviews for your PR
+5. Travis tests have to pass
+6. Your PR is approved and merged
+
+## How to release
+1. Draft a new release https://github.com/opentargets/opentargets-py/releases/new
+2. add a tag using semantic versioning, pointing to `master`
+3. Press publish
+
+Releases will automatically deploy to pypi (thanks to travis) once they are created in the github console. 

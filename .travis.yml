@@ -1,15 +1,19 @@
 language: python
 python:
-  - "2.7"
-  - "3.5"
-# command to install dependencies
+  - '2.7'
+  - '3.5'
 sudo: required
 install:
   - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then sudo apt-get install python-pandas; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then rm /home/travis/virtualenv/python2.7.12/lib/python2.7/no-global-site-packages.txt; fi
   - pip install .
   - pip install -r requirements.txt
   - pip install  xlwt
   - pip install pandas
-# command to run tests
 script: nosetests
+deploy:
+  provider: pypi
+  user: "andreap"
+  password:
+    secure: "CzZUx9kwh9ocyv6g+UhiiEdsMJcUHjGiC593yGB222oQBbIh8t9Dn/zRIGLm2DRsHbdKw09gkWj9aFKyMakNpX04WQ86CjCelPTPhYNqFgS5B1Jvc7l36tCbSnh8GAryffTN/muk/nwAMuSWl/o+oK9/7I4vjxyC8u8wOJk5v6lcDElEhmsnpc9O9h+dP90Uc5m4vTaf1iQRIKWGYB3sYPf4nGqUIKa97GB2qpKMI2DtVL1CKKp2cyflOqm64kxEGudTB5wrhUhqBWLxGLBUNui/nnpVrff38HgqaIFy01MraidQwO5yLI1I8XDIrbEdBaDWgbdmqM71nAs/Wlxp0vIV2C6+GljkUCkOpMAsRa7ZSY1W1WFkWP0u/mgqyJOMyAcSnO8kd6RdYvu9gsh5kyCivE3/W+IKE29yajetG69U77Z3kH3BwZFn4TieCVpwSqueGcj44wGmnKd/nI37eZsaq0CBlm7sZ0wgRch9Qgzn4x+9vnae4Dxet5N/uenuhav/yqqWGjo95E5kN6Iak92pOtTsNsIB2RmpBt/SKEpBWQn1jb063vDi7eFxtAY+/IipgV62JXM6UshmQWA5N12vhmT8BhbL4kalzEJ17d0kg7QT/JmBYYd2ZZiz4Nh3aPXE9q9fFqyyq248zIp/fyfEFFHc3nRGhqNZLxfqwio="
+  on:
+    tags: true
