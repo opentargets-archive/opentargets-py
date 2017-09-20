@@ -367,7 +367,7 @@ class Connection(object):
                                     params = params,
                                     json = data,
                                     headers = headers,
-                                    verify = self.verify
+                                    verify = self.verify,
                                     **kwargs)
 
         'order params to allow efficient caching'
