@@ -215,6 +215,7 @@ class Connection(object):
                  auth_app_name = None,
                  auth_secret = None,
                  use_http2=False,
+                 verify=True
                  ):
         """
         Args:
@@ -237,6 +238,7 @@ class Connection(object):
             self.use_auth = False
         self.token = None
         self.use_http2 = use_http2
+        self.verify = verify
         session= requests.Session()
         if self.use_http2:
             session.mount(host, HTTP20Adapter())
@@ -365,6 +367,7 @@ class Connection(object):
                                     params = params,
                                     json = data,
                                     headers = headers,
+                                    verify = self.verify,
                                     **kwargs)
 
         'order params to allow efficient caching'
@@ -434,7 +437,7 @@ class Connection(object):
         """
         Fetch and parse REST API documentation
         """
-        r= self.session.get(self.host+':'+self.port+'/api/docs/swagger.yaml')
+        r= self.session.get(self.host+':'+self.port+'/api/docs/swagger.yaml', verify = self.verify)
         r.raise_for_status()
         self.swagger_yaml = r.text
         self.api_specs = yaml.load(self.swagger_yaml)
