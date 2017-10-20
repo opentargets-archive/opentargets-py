@@ -17,12 +17,12 @@ class OpenTargetsClient(object):
 
     """
 
-    _search_endpoint = '/public/search'
-    _filter_associations_endpoint = '/public/association/filter'
-    _get_associations_endpoint = '/public/association'
-    _filter_evidence_endpoint = '/public/evidence/filter'
-    _get_evidence_endpoint = '/public/evidence'
-    _stats_endpoint = '/public/utils/stats'
+    _search_endpoint = '/platform/public/search'
+    _filter_associations_endpoint = '/platform/public/association/filter'
+    _get_associations_endpoint = '/platform/public/association'
+    _filter_evidence_endpoint = '/platform/public/evidence/filter'
+    _get_evidence_endpoint = '/platform/public/evidence'
+    _stats_endpoint = '/platform/public/utils/stats'
 
     def __init__(self,
                  **kwargs

@@ -209,9 +209,9 @@ class Connection(object):
     _AUTO_GET_TOKEN = 'auto'
 
     def __init__(self,
-                 host='https://www.targetvalidation.org',
+                 host='https://api.opentargets.io',
                  port=443,
-                 api_version='latest',
+                 api_version='v3',
                  auth_app_name = None,
                  auth_secret = None,
                  use_http2=False,
@@ -246,10 +246,12 @@ class Connection(object):
 
 
     def _build_url(self, endpoint):
-        return '{}:{}/api/{}{}'.format(self.host,
+        url = '{}:{}/{}{}'.format(self.host,
                                        self.port,
                                        self.api_version,
                                        endpoint,)
+        return url
+
     @staticmethod
     def _auto_detect_post(params):
         """
@@ -310,7 +312,7 @@ class Connection(object):
         Returns:
             response for the get token request
         """
-        return self._make_request('/public/auth/request_token',
+        return self._make_request('/platform/public/auth/request_token',
                                   params={'app_name':self.auth_app_name,
                                         'secret':self.auth_secret,
                                         'expiry': expire},
@@ -419,7 +421,7 @@ class Connection(object):
         Update token when expired
         """
         if self.token and not force:
-            token_valid_response = self._make_request('/public/auth/validate_token',
+            token_valid_response = self._make_request('/platform/public/auth/validate_token',
                                                        headers={'Auth-Token':self.token})
             if token_valid_response.status_code == 200:
                 return
@@ -434,7 +436,7 @@ class Connection(object):
         """
         Fetch and parse REST API documentation
         """
-        r= self.session.get(self.host+':'+self.port+'/api/docs/swagger.yaml')
+        r= self.session.get(self.host+':'+self.port+'/v%s/platform/swagger'%API_MAJOR_VERSION)
         r.raise_for_status()
         self.swagger_yaml = r.text
         self.api_specs = yaml.load(self.swagger_yaml)
@@ -444,6 +446,7 @@ class Connection(object):
             if p[-1]== '/':
                 p=p[:-1]
             self.endpoint_validation_data[p] = {}
+            self.endpoint_validation_data['/platform' + p] = {}
             for method, method_data in data.items():
                 if 'parameters' in method_data:
                     params = {}
@@ -451,8 +454,9 @@ class Connection(object):
                         par_type = par.get('type', 'string')
                         params[par['name']]=par_type
                     self.endpoint_validation_data[p][method] = params
+                    self.endpoint_validation_data['/platform' + p][method] = params
 
-        remote_version = self.get('/public/utils/version').data
+        remote_version = self.get('/platform/public/utils/version').data
         # TODO because content type wasnt checked proerly a float
         # was returned instead a proper version string
         if str(remote_version).startswith(API_MAJOR_VERSION):
@@ -471,6 +475,7 @@ class Connection(object):
             AttributeError: if validation is not passed
 
         """
+
         endpoint_data = self.endpoint_validation_data[endpoint][method]
         if filter_type in endpoint_data:
             if endpoint_data[filter_type] == 'string' and isinstance(value, str):
@@ -515,7 +520,7 @@ class Connection(object):
         Returns:
             bool: True if pinging the raw response as a ``str`` if the API has a non standard name
         """
-        response = self.get('/public/utils/ping')
+        response = self.get('/platform/public/utils/ping')
         if response.data=='pong':
             return True
         elif response.data:
