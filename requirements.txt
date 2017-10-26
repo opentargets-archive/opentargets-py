@@ -4,3 +4,4 @@ hyper==0.7.0
 h2==2.6.2
 PyYAML
 future==0.16.0
+addict

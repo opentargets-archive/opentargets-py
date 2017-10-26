@@ -9,6 +9,8 @@ from collections import namedtuple
 from itertools import islice
 from json import JSONEncoder
 import collections
+
+import addict
 import requests
 from cachecontrol import CacheControl
 from hyper.contrib import HTTP20Adapter
@@ -16,6 +18,8 @@ from h2.utilities import CONNECTION_HEADERS as INVALID_HTTP2_HEADERS
 import time
 from future.utils import implements_iterator
 import yaml
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3 import Retry
 from requests.packages.urllib3.exceptions import MaxRetryError
 from opentargets.version import __version__, __api_major_version__
 
@@ -85,35 +89,6 @@ def compress_list_values(d, sep='|'):
     return d
 
 
-def dict_to_namedtuple(d, named_tuple_class_name='Result', rename=True):
-    """
-    Converts a dictionary to a namedtuple
-    Args:
-        d (dict): dictionary
-        named_tuple_class_name: Name of the namedtuple class
-        rename (bool): rename unsafe fields. Defaults to True
-
-    Returns:
-        namedtuple: the converted namedtuple
-    """
-    return namedtuple(named_tuple_class_name, d.keys(), rename=rename)(*d.values())
-
-
-def dict_to_nested_namedtuple(d, named_tuple_class_name='Result' ):
-    """
-        Recursively converts a dictionary to a namedtuple
-        Args:
-            d (dict): dictionary
-            named_tuple_class_name: Name of the namedtuple class
-
-        Returns:
-            namedtuple: the converted namedtuple
-        """
-    for key, value in d.items():
-        if isinstance(value, dict):
-            d[key] = dict_to_nested_namedtuple(value, named_tuple_class_name = named_tuple_class_name)
-    return namedtuple(named_tuple_class_name, d.keys())(**d)
-
 
 class HTTPMethods(object):
     GET='get'
@@ -145,7 +120,10 @@ class Response(object):
                 if 'from' in parsed_response:
                     parsed_response['from_'] = parsed_response['from']
                     del parsed_response['from']
-                self.info = dict_to_namedtuple(parsed_response, named_tuple_class_name='ResultInfo')
+                if 'next' in parsed_response:
+                    parsed_response['next_'] = parsed_response['next']
+                    del parsed_response['next']
+                self.info = addict.Dict(parsed_response)
 
             else:
                 # TODO because content type wasnt checked a string
@@ -154,7 +132,7 @@ class Response(object):
                 self.info = {}
 
 
-        except ValueError:
+        except ValueError as e:
             self.data = response.text
             self.info = {}
 
@@ -163,7 +141,9 @@ class Response(object):
 
     def __str__(self):
         data = str(self.data)
-        return data[:100] + (data[100:] and '...')
+        if len(data)>100:
+            return data[:50]+' ...,'+data[-50:]
+
 
 
     def _parse_usage_data(self):
@@ -191,7 +171,7 @@ class Response(object):
         usage['remaining']['minimum'] =min((usage['remaining']['hour'], usage['remaining']['seconds_10']))
 
         usage['exceeded'] = usage['remaining']['minimum'] < 0
-        self.usage = dict_to_nested_namedtuple(usage, named_tuple_class_name='UsageInfo')
+        self.usage = addict.Dict(usage)
         if self.usage.exceeded:
             self._logger.warning('Fair Usage limit exceeded')
     def __len__(self):
@@ -238,6 +218,13 @@ class Connection(object):
         self.token = None
         self.use_http2 = use_http2
         session= requests.Session()
+        retry_policies = Retry(total=5,
+                               read=5,
+                               connect=5,
+                               backoff_factor=.2,
+                               status_forcelist=(500, 502, 504),)
+        http_retry = HTTPAdapter(max_retries=retry_policies)
+        session.mount(host, http_retry)
         if self.use_http2:
             session.mount(host, HTTP20Adapter())
         self.session = CacheControl(session)
@@ -542,6 +529,7 @@ class IterableResult(object):
         """
         self.conn = conn
         self.method = method
+        self._search_after_last = None
 
     def __call__(self, *args, **kwargs):
         """
@@ -559,10 +547,12 @@ class IterableResult(object):
         response = self._make_call()
         self.info = response.info
         self._data = response.data
+        if 'next_' in response.info:
+            self._search_after_last = response.info.next_
         self.current = 0
         try:
             self.total = int(self.info.total)
-            if 'size' in self.info._fields and  'size' not in self._kwargs:
+            if 'size' in self.info and  'size' not in self._kwargs:
                 self._kwargs['size']=1000
         except:
             self.total = len(self._data)
@@ -605,8 +595,19 @@ class IterableResult(object):
     def __next__(self):
         if self.current < self.total:
             if not self._data:
-                self._kwargs['from'] = self.current
-                self._data = self._make_call().data
+                if self._search_after_last:
+                    self._kwargs['from'] = 0
+                    self._kwargs['next'] = self._search_after_last
+                else:
+                    self._kwargs['from'] = self.current
+                self._kwargs['no_cache']='true'
+                self._kwargs['size'] = 1000
+                call_output = self._make_call()
+                if (not call_output.data):
+                    raise StopIteration
+                if 'next_' in call_output.info:
+                    self._search_after_last = call_output.info.next_
+                self._data = call_output.data
             d = self._data.pop(0)
             self.current+=1
             return d
@@ -736,14 +737,14 @@ class IterableResult(object):
         else:
             raise ImportError('xlwt library is not installed but is required to create an excel file')
 
-    def to_namedtuple(self):
+    def to_object(self):
         """
-        Converts dictionary in the data to namedtuple. Useful for interactive data exploration on IPython
+        Converts dictionary in the data to an addict object. Useful for interactive data exploration on IPython
             and similar tools
         Returns:
-            iterator: an iterator of namedtupled
+            iterator: an iterator of addict.Dict
         """
-        return (dict_to_nested_namedtuple(i, named_tuple_class_name='Data') for i in self)
+        return (addict.Dict(i) for i in self)
 
     def to_file(self, filename, compress=True, progress_bar = False):
         if compress:

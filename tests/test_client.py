@@ -102,22 +102,17 @@ class OpenTargetClientTest(unittest.TestCase):
         response = self.client.filter_associations()
         self.assertGreater(len(response), 0)
         total = response.info.total
-        print(response)
         response.filter(target='ENSG00000157764')
         self.assertLess(len(response), total)
-        print(response)
         total = response.info.total
         response.filter(direct=True)
         self.assertLess(len(response), total)
-        print(response)
         total = response.info.total
         response.filter(scorevalue_min=0.2)
         self.assertLess(len(response), total)
-        print(response)
         total = response.info.total
         response.filter(therapeutic_area='efo_0000701')
         self.assertLess(len(response), total)
-        print(response)
         results = []
         for i, r in enumerate(response):
             print(i, r['id'], r['association_score']['overall'], r['disease']['efo_info']['label'])
@@ -137,18 +132,18 @@ class OpenTargetClientTest(unittest.TestCase):
         target_symbol = 'BRAF'
         response = self.client.get_associations_for_target(target_symbol)
         self.assertGreater(len(response), 0)
-        result = next(response)
-        self.assertEqual(result['target']['gene_info']['symbol'], target_symbol)
+        for result in response:
+            self.assertEqual(result['target']['gene_info']['symbol'], target_symbol)
 
     def testGetAssociationsForDisease(self):
         disease_label = 'cancer'
         response = self.client.get_associations_for_disease(disease_label)
         self.assertGreater(len(response), 0)
-        result = next(response)
-        self.assertEqual(result['disease']['efo_info']['label'], disease_label)
+        for result in response:
+            self.assertEqual(result['disease']['efo_info']['label'], disease_label)
 
     def testGetEvidence(self):
-        evidence_id = "5cf863da265c32d112ff4fc3bfc25ab3"
+        evidence_id = "03fba0599655b9040012b29cf0de8060"
         response = self.client.get_evidence(evidence_id)
         self.assertEquals(len(response), 1)
         self.assertEquals(evidence_id, response[0]['id'])
@@ -239,13 +234,13 @@ class OpenTargetClientTest(unittest.TestCase):
         os.remove(filename)
 
 
-    def testSerialiseToNamedtuple(self):
+    def testSerialiseToObject(self):
         target_symbol = 'BRAF'
         response = self.client.get_associations_for_target(target_symbol)
         items = len(response)
         self.assertGreater(len(response), 0)
-        nt_output = list(response.to_namedtuple())
-        for i, result in enumerate(nt_output):
+        obj_output = list(response.to_object())
+        for i, result in enumerate(obj_output):
             self.assertIsNotNone(result.target.id)
         self.assertEqual(items, i + 1)
 
@@ -263,7 +258,7 @@ class OpenTargetClientTest(unittest.TestCase):
                                                                  ]}))
 
     def testGetToPost(self):
-        response = self.client.conn.get('/public/association/filter', params={'target': ['ENSG00000157764',
+        response = self.client.conn.get('/platform/public/association/filter', params={'target': ['ENSG00000157764',
                                                                                          'ENSG00000171862',
                                                                                          'ENSG00000136997',
                                                                                          'ENSG00000012048',
