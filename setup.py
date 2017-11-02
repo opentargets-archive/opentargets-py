@@ -22,7 +22,8 @@ setup(name=__pkgname__,
           'hyper==0.7.0',
           'h2==2.4.2',
           'future==0.16.0',
-          'PyYAML'],
+          'PyYAML',
+          'addict'],
       extras_require={
           'tests': [
               'nose',
