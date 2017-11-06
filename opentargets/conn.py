@@ -211,10 +211,10 @@ class Connection(object):
         self.api_version = api_version
         self.auth_app_name = auth_app_name
         self.auth_secret = auth_secret
-        if self.auth_app_name and self.auth_secret:
-            self.use_auth = True
-        else:
-            self.use_auth = False
+        # if self.auth_app_name and self.auth_secret:
+        #     self.use_auth = True
+        # else:
+        self.use_auth = False
         self.token = None
         self.use_http2 = use_http2
         session= requests.Session()

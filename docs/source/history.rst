@@ -3,6 +3,14 @@
 Changelog
 =========
 
+3.0.0
+-----
+Compatible with REST API release 3.0
+- added `get_similar_target` and `get_similar_disease` methods
+- added ability to return json objects as addict Dictionaries
+- use next param to paginate when possible
+- retry on server side errors to make the connection more reliable
+
 2.0.0
 -----
 Compatible with REST API release 2.0

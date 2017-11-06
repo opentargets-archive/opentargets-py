@@ -23,6 +23,8 @@ class OpenTargetsClient(object):
     _filter_evidence_endpoint = '/platform/public/evidence/filter'
     _get_evidence_endpoint = '/platform/public/evidence'
     _stats_endpoint = '/platform/public/utils/stats'
+    _relation_target_endpoint = '/platform/private/relation/target'
+    _relation_disease_endpoint = '/platform/private/relation/disease'
 
     def __init__(self,
                  **kwargs
@@ -219,6 +221,59 @@ class OpenTargetsClient(object):
             logger.debug('{} resolved to id {}'.format(disease, disease_id))
             results = self.filter_evidence(disease=disease_id)
         return results
+
+    def get_similar_target(self, target, **kwargs):
+        """
+        Return targets sharing a similar patter nof association to diseases
+        Accepts any string as `target` parameter and fires a search if it is not an Ensembl Gene identifier
+
+        Args:
+            target (str): an Ensembl Gene identifier or a string to search for a gene mapping
+        Keyword Args:
+            **kwargs: are passed as parameters to the /private/relation/target method of the REST API
+        Returns:
+            IterableResult: Result of the query
+        """
+        if not isinstance(target, str):
+            raise AttributeError('target must be of type str')
+        if not target.startswith('ENSG'):
+            search_result = next(self.search(target, size=1, filter='target'))
+            if not search_result:
+                raise AttributeError('cannot find an ensembl gene id for target {}'.format(target))
+            target_id = search_result['id']
+            logger.debug('{} resolved to id {}'.format(target, target_id))
+        else:
+            target_id = target
+
+        result = IterableResult(self.conn)
+        result(self._relation_target_endpoint+'/'+target_id, **kwargs)
+        return result
+
+    def get_similar_disease(self, disease, **kwargs):
+        """
+        Return targets sharing a similar patter nof association to diseases
+        Accepts any string as `disease` parameter and fires a search if nothing is retireved on a first attempt
+
+        Args:
+            disease (str): a disease identifier or a string to search for a disease mapping
+        Keyword Args:
+            **kwargs: are passed as parameters to the /private/relation/disease method of the REST API
+        Returns:
+            IterableResult: Result of the query
+        """
+        if not isinstance(disease, str):
+            raise AttributeError('disease must be of type str')
+        result = IterableResult(self.conn)
+        result(self._relation_disease_endpoint+'/'+disease, **kwargs)
+        if not result:
+            search_result = next(self.search(disease, size=1, filter='disease'))
+            if not search_result:
+                raise AttributeError('cannot find an disease id for disease {}'.format(disease))
+            disease_id = search_result['id']
+            logger.debug('{} resolved to id {}'.format(disease, disease_id))
+            result = IterableResult(self.conn)
+            result(self._relation_disease_endpoint + '/' + disease_id, **kwargs)
+        return result
 
     def get_stats(self):
         """

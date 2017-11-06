@@ -130,10 +130,13 @@ class OpenTargetClientTest(unittest.TestCase):
 
     def testGetAssociationsForTarget(self):
         target_symbol = 'BRAF'
-        response = self.client.get_associations_for_target(target_symbol)
+        response = self.client.get_associations_for_target(target_symbol,
+                                                           size =30)
         self.assertGreater(len(response), 0)
-        for result in response:
+        for i, result in enumerate(response):
             self.assertEqual(result['target']['gene_info']['symbol'], target_symbol)
+            if i>90:
+                break
 
     def testGetAssociationsForDisease(self):
         disease_label = 'cancer'
@@ -154,10 +157,29 @@ class OpenTargetClientTest(unittest.TestCase):
 
     def testGetEvidenceForTarget(self):
         target_symbol = 'BRAF'
-        response = self.client.get_evidence_for_target(target_symbol)
+        response = self.client.get_evidence_for_target(target_symbol,
+                                                       size=1000)
+        self.assertGreater(len(response), 0)
+        for i, result in enumerate(response):
+            self.assertEqual(result['target']['gene_info']['symbol'], target_symbol)
+            if i>100:
+                break
+
+    def testGetSimilarTargets(self):
+        target_symbol = 'BRAF'
+        response = self.client.get_similar_target(target_symbol)
         self.assertGreater(len(response), 0)
         result = next(response)
-        self.assertEqual(result['target']['gene_info']['symbol'], target_symbol)
+        self.assertEqual(result['subject']['label'], target_symbol)
+        self.assertEqual(result['object']['label'], 'KRAS')
+
+    def testGetSimilarDisease(self):
+        disease_label = 'ulcerative colitis'
+        response = self.client.get_similar_disease(disease_label)
+        self.assertGreater(len(response), 0)
+        result = next(response)
+        self.assertEqual(result['subject']['label'], disease_label)
+        self.assertEqual(result['object']['label'], 'inflammatory bowel disease')
 
     def testGetEvidenceForDisease(self):
         disease_label = 'medulloblastoma'
