@@ -446,7 +446,7 @@ class Connection(object):
         remote_version = self.get('/platform/public/utils/version').data
         # TODO because content type wasnt checked proerly a float
         # was returned instead a proper version string
-        if str(remote_version).startswith(API_MAJOR_VERSION):
+        if not str(remote_version).startswith(API_MAJOR_VERSION):
             self._logger.warning('The remote server is running the API with version {}, but the client expected this major version {}. They may not be compatible.'.format(remote_version, API_MAJOR_VERSION))
 
     def validate_parameter(self, endpoint, filter_type, value, method=HTTPMethods.GET):
