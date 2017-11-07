@@ -310,10 +310,10 @@ class OpenTargetClientTest(unittest.TestCase):
 
     def testGetAvailableEndpoints(self):
         endpoints = self.client.conn.get_api_endpoints()
-        self.assertTrue('/public/search' in endpoints)
+        self.assertTrue('/platform/public/search' in endpoints)
 
     def testGetEndpointDocs(self):
-        docs = self.client.conn.api_endpoint_docs('/public/search')
+        docs = self.client.conn.api_endpoint_docs('/platform/public/search')
         self.assertGreater(len(docs['get']['parameters']),0)
 
     def testPing(self):
