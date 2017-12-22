@@ -12,7 +12,7 @@ import the high level client
 
     from opentargets import OpenTargetsClient
     ot = OpenTargetsClient()
-    
+
 or if you have an API key
 ::
 
@@ -159,5 +159,22 @@ If you want to change the way the associations are scored using just some dataty
     (1.6803112925534462, 'EFO_0000228', {'genetic_association': 1.0, 'known_drug': 0.9357799925142999, 'somatic_mutation': 0.6372638888888889})
     (1.6013073034769463, 'EFO_0000512', {'genetic_association': 1.0, 'known_drug': 1.0, 'somatic_mutation': 0.303921910430839})
 
+Using insecure SSL? local certificate? an HTTP or SOCKS proxy?
+::
+
+    >>> from opentargets import OpenTargetsClient
+    >>> from opentargets.statistics import HarmonicSumScorer
+    >>> ot = OpenTargetsClient(verify = False) # SSL not verified
+    >>> ot = OpenTargetsClient(verify = 'path to my certificate') # local certificate
+    >>> ot = OpenTargetsClient(proxies = {
+                                          'http': 'http://10.10.1.10:3128',
+                                          'https': 'http://10.10.1.10:1080',
+                                         }) # HTTP proxies
+    >>> ot = OpenTargetsClient(proxies = {
+                                          'http': 'socks5://user:pass@host:port',
+                                          'https': 'socks5://user:pass@host:port'
+                                         }) # HTTP proxies
+
+ verify and proxies options  works as in the (requests library)[http://docs.python-requests.org/en/master/user/advanced/]
 
 

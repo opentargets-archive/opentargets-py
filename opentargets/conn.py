@@ -195,6 +195,8 @@ class Connection(object):
                  auth_app_name = None,
                  auth_secret = None,
                  use_http2=False,
+                 verify = True,
+                 proxies = {}
                  ):
         """
         Args:
@@ -204,6 +206,7 @@ class Connection(object):
             auth_app_name (str): app_name if using authentication
             auth_secret (str): secret if using authentication
             use_http2 (bool): use http2 client
+            verify (bool): sets SSL verification for Request session, accepts True, False or a path to a certificate
         """
         self._logger = logging.getLogger(__name__)
         self.host = host
@@ -218,10 +221,12 @@ class Connection(object):
         self.token = None
         self.use_http2 = use_http2
         session= requests.Session()
-        retry_policies = Retry(total=5,
-                               read=5,
-                               connect=5,
-                               backoff_factor=.2,
+        session.verify = verify
+        session.proxies = proxies
+        retry_policies = Retry(total=10,
+                               read=10,
+                               connect=10,
+                               backoff_factor=.5,
                                status_forcelist=(500, 502, 504),)
         http_retry = HTTPAdapter(max_retries=retry_policies)
         session.mount(host, http_retry)

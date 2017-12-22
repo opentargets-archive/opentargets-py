@@ -1,5 +1,5 @@
 # opentargets-py
-Python client for the Open Targets REST API at targetvalidation.org
+Python client for the Open Targets REST API at api.opentargets.io
 [![Build Status](https://travis-ci.org/opentargets/opentargets-py.svg?branch=master)](https://travis-ci.org/opentargets/opentargets-py)
 [![Documentation Status](https://readthedocs.org/projects/opentargets/badge/?version=latest)](http://opentargets.readthedocs.io/en/latest/?badge=latest)
 
@@ -13,6 +13,7 @@ Why should you use this client instead of the REST API directly?
 - Handles fair usage limits transparently
 - Follows HTTP cache as set by the REST API
 - Experimental HTTP2 support for better performance (beware the client library is in alpha)
+- Support for advanced SSL and proxy configuration
 
 This client is supported for Python 3.5 and upper.
 Works on pythoon 2.7 on a best effort basis.
@@ -64,7 +65,7 @@ virtualenv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
-## How to contribute: 
+## How to contribute:
 1. (if you are not part of the open targets team) fork the repo
 2. branch from master, always start with `git checkout -b yourname-featureyouareadding`
 2. code
@@ -78,4 +79,4 @@ pip install -r requirements.txt
 2. add a tag using semantic versioning, pointing to `master`
 3. Press publish
 
-Releases will automatically deploy to pypi (thanks to travis) once they are created in the github console. 
+Releases will automatically deploy to pypi (thanks to travis) once they are created in the github console.

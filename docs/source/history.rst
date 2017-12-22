@@ -3,6 +3,11 @@
 Changelog
 =========
 
+3.1.0
+-----
+- added SSL ceritificate customisation
+- added HTTP and SOCKS proxies support
+
 3.0.0
 -----
 Compatible with REST API release 3.0

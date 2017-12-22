@@ -7,7 +7,7 @@
 opentargets - Python client for targetvalidation.org
 ====================================================
 
-**opentargets** is the official python client for the `Open Targets REST API`_ at `targetvalidation.org`_
+**opentargets** is the official python client for the `Open Targets REST API`_ at `api.opentargets.io`_
 
 This client allows you to query the API automatically taking care of handling all
 the calls and returning data in a pythonic way.
