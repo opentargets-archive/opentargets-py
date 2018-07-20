@@ -55,10 +55,10 @@ or directly from github
 
 ::
 
-    pip install git+git://github.com/CTTV/opentargets-py.git
+    pip install git+git://github.com/opentargets/opentargets-py.git
 
-Get the source code (or make your own fork) on GitHub : `CTTV/opentargets-py
-<http://github.com/CTTV/opentargets-py>`_
+Get the source code (or make your own fork) on GitHub : `opentargets/opentargets-py
+<http://github.com/opentargets/opentargets-py>`_
 
 
 Documentation
