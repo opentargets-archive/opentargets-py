@@ -23,7 +23,7 @@ search for a target:
 ::
 
     search_result = ot.search('BRAF')
-    print search_result[0]
+    print(search_result[0])
 
 search associations for a target:
 ::
