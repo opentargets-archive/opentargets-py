@@ -4,3 +4,4 @@ setup.py
 opentargets/__init__.py
 opentargets/conn.py
 opentargets/statistics.py
+opentargets/version.py
