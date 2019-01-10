@@ -10,6 +10,8 @@ install:
   - pip install -r requirements.dev.txt
 script:
   - pytest --cov=opentargets --cov-report term tests/ --fulltrace
+  - pip install wheel
+  - python setup.py bdist_wheel --universal
 notifications:
   email:
     recipients:
@@ -18,10 +20,13 @@ notifications:
     on_failure: always
 after_success:
   - codecov
+  -
 deploy:
   provider: pypi
   user: "${PYPI_USERNAME}"
   password: "${PYPI_PASSWORD}"
   skip_existing: true
+  skip_cleanup: true
+  distributions: "bdist_wheel"
   on:
     tags: true

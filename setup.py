@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
 
 # importing __<vars>__ into the namespace
 with open('opentargets/version.py') as fv:
