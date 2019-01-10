@@ -1,15 +1,24 @@
+sudo: required
 language: python
 python:
   - '2.7'
   - '3.5'
-sudo: required
+  - '3.6'
 install:
   - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then sudo apt-get install python-pandas; fi
-  - pip install .
+  - pip install --upgrade pip
   - pip install -r requirements.txt
-  - pip install  xlwt
-  - pip install pandas
-script: nosetests
+  - pip install -r requirements.dev.txt
+script:
+  - pytest --cov=opentargets --cov-report term tests/ --fulltrace
+notifications:
+  email:
+    recipients:
+    - ops@opentargets.org
+    on_success: never
+    on_failure: always
+after_success:
+  - codecov
 deploy:
   provider: pypi
   user: "andreap"
