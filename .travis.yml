@@ -25,3 +25,4 @@ deploy:
   password: "${PYPI_PASSWORD}"
    on:
     tags: true # but only from master as travis release only from master by default
+    # all_branches: true
