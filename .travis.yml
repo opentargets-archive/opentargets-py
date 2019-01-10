@@ -22,5 +22,6 @@ deploy:
   provider: pypi
   user: "${PYPI_USERNAME}"
   password: "${PYPI_PASSWORD}"
+  skip_existing: true
   on:
     tags: true
