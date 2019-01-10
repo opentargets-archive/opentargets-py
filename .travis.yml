@@ -8,7 +8,6 @@ install:
   - pip install --upgrade pip
   - pip install -r requirements.txt
   - pip install -r requirements.dev.txt
-  - pip install .
 script:
   - pytest --cov=opentargets --cov-report term tests/ --fulltrace
 notifications:
