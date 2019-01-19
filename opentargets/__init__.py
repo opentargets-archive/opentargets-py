@@ -275,7 +275,7 @@ class OpenTargetsClient(object):
             result(self._relation_disease_endpoint + '/' + disease_id, **kwargs)
         return result
 
-    def get_stats(self):
+    def get_stats(self, **kwargs):
         """
         Returns statistics about the data served by the REST API
 

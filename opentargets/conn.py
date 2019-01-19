@@ -13,14 +13,10 @@ import collections
 import addict
 import requests
 from cachecontrol import CacheControl
-from hyper.contrib import HTTP20Adapter
-from h2.utilities import CONNECTION_HEADERS as INVALID_HTTP2_HEADERS
-import time
 from future.utils import implements_iterator
 import yaml
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3 import Retry
-from requests.packages.urllib3.exceptions import MaxRetryError
+from urllib3 import Retry
 from opentargets.version import __version__, __api_major_version__
 
 try:
@@ -116,7 +112,7 @@ class Response(object):
                     self.data = parsed_response['data']
                     del parsed_response['data']
                 else:
-                    self.data = []
+                    self.data = [parsed_response]
                 if 'from' in parsed_response:
                     parsed_response['from_'] = parsed_response['from']
                     del parsed_response['from']
@@ -131,49 +127,20 @@ class Response(object):
                 self.data = parsed_response
                 self.info = {}
 
-
         except ValueError as e:
             self.data = response.text
             self.info = {}
 
         self._headers = response.headers
-        self._parse_usage_data()
 
     def __str__(self):
-        data = str(self.data)
-        if len(data)>100:
-            return data[:50]+' ...,'+data[-50:]
-
-
-
-    def _parse_usage_data(self):
-        if 'X-Usage-Limit-1h' in self._headers:
-            UL1H = 'X-Usage-Limit-1h'
-            UL10S = 'X-Usage-Limit-10s'
-            UR1H = 'X-Usage-Remaining-1h'
-            UR10S = 'X-Usage-Remaining-10s'
-        elif b'X-Usage-Limit-1h' in self._headers:
-            UL1H = b'X-Usage-Limit-1h'
-            UL10S = b'X-Usage-Limit-10s'
-            UR1H = b'X-Usage-Remaining-1h'
-            UR10S = b'X-Usage-Remaining-10s'
+        if self.data:
+            data = str(self.data)
+            if len(data)>100:
+                return data[:50]+' ...,'+data[-50:]
         else:
-            self.usage = None
-            return
+            return ''
 
-        usage = dict(limit={'hour': int(self._headers[UL1H]),
-                            'seconds_10': int(self._headers[UL10S]),
-                            },
-                     remaining = {'hour': int(self._headers[UR1H]),
-                                  'seconds_10': int(self._headers[UR10S]),
-                                  },
-                     )
-        usage['remaining']['minimum'] =min((usage['remaining']['hour'], usage['remaining']['seconds_10']))
-
-        usage['exceeded'] = usage['remaining']['minimum'] < 0
-        self.usage = addict.Dict(usage)
-        if self.usage.exceeded:
-            self._logger.warning('Fair Usage limit exceeded')
     def __len__(self):
         try:
             return self.info.total
@@ -185,16 +152,10 @@ class Connection(object):
     """
     Handler for connection and calls to the Open Targets Validation Platform REST API
     """
-
-    _AUTO_GET_TOKEN = 'auto'
-
     def __init__(self,
                  host='https://api.opentargets.io',
                  port=443,
                  api_version='v3',
-                 auth_app_name = None,
-                 auth_secret = None,
-                 use_http2=False,
                  verify = True,
                  proxies = {}
                  ):
@@ -203,23 +164,12 @@ class Connection(object):
             host (str): host serving the API
             port (int): port to use for connection to the API
             api_version (str): api version to point to, default to 'latest'
-            auth_app_name (str): app_name if using authentication
-            auth_secret (str): secret if using authentication
-            use_http2 (bool): use http2 client
             verify (bool): sets SSL verification for Request session, accepts True, False or a path to a certificate
         """
         self._logger = logging.getLogger(__name__)
         self.host = host
         self.port = str(port)
         self.api_version = api_version
-        self.auth_app_name = auth_app_name
-        self.auth_secret = auth_secret
-        # if self.auth_app_name and self.auth_secret:
-        #     self.use_auth = True
-        # else:
-        self.use_auth = False
-        self.token = None
-        self.use_http2 = use_http2
         session= requests.Session()
         session.verify = verify
         session.proxies = proxies
@@ -230,8 +180,6 @@ class Connection(object):
                                status_forcelist=(500, 502, 504),)
         http_retry = HTTPAdapter(max_retries=retry_policies)
         session.mount(host, http_retry)
-        if self.use_http2:
-            session.mount(host, HTTP20Adapter())
         self.session = CacheControl(session)
         self._get_remote_api_specs()
 
@@ -294,35 +242,6 @@ class Connection(object):
                                data=data,
                                method='POST'))
 
-
-    def _make_token_request(self, expire = 60):
-        """
-        Asks for a token to the API
-        Args:
-            expire (int): expiration time for the token
-
-        Returns:
-            response for the get token request
-        """
-        return self._make_request('/platform/public/auth/request_token',
-                                  params={'app_name':self.auth_app_name,
-                                        'secret':self.auth_secret,
-                                        'expiry': expire},
-                                  headers={'Cache-Control':'no-cache',}
-                                  )
-
-    def get_token(self, expire = 60):
-        """
-        Asks for a token to the API
-        Args:
-            expire (int): expiration time for the token
-
-        Returns:
-            str: the token served by the API
-        """
-        response = self._make_token_request(expire)
-        return response.json()['token']
-
     def _make_request(self,
                       endpoint,
                       params = None,
@@ -348,81 +267,24 @@ class Connection(object):
             a response from requests
         """
 
-        def call():
-            headers['User-agent']='Open Targets Python Client/%s'%str(__version__)
-            if self.use_http2 and set(headers.keys())&INVALID_HTTP2_HEADERS:
-                for h in INVALID_HTTP2_HEADERS:
-                    if h in headers:
-                        del headers[h]
-            return self.session.request(method,
-                                    self._build_url(endpoint),
-                                    params = params,
-                                    json = data,
-                                    headers = headers,
-                                    **kwargs)
 
         'order params to allow efficient caching'
-        if params is not None:
+        if params:
             if isinstance(params, dict):
                 params = sorted(params.items())
             else:
                 params = sorted(params)
 
-        if self.use_auth and not 'request_token' in endpoint:
-            if self.token is None:
-                self._update_token()
-            if self.token is not None:
-                headers['Auth-Token']=self.token
-
-        response = None
-        default_retry_after = 5
-        if not rate_limit_fail:
-            status_code = 429
-            while status_code in [429,419]:
-                try:
-                    response = call()
-                    status_code = response.status_code
-                    if status_code == 429:
-                        retry_after=default_retry_after
-                        if 'Retry-After' in response.headers:
-                            retry_after = float(response.headers['Retry-After'])
-                        self._logger.warning('Maximum usage limit hit. Retrying in {} seconds'.format(retry_after))
-                        time.sleep(retry_after)
-                    elif status_code == 419:
-                        self._update_token(force = True)
-                        headers['Auth-Token'] = self.token
-                        time.sleep(0.5)
-                except MaxRetryError as e:
-                    self._logger.exception(e.args[0].reason)
-                    self._logger.warning('Problem connecting to the remote API. Retrying in {} seconds'.format(default_retry_after))
-                    time.sleep(default_retry_after)
-                except OSError as e:
-                    self._logger.exception(str(e))
-                    self._logger.warning('Problem connecting to the remote API. Retrying in {} seconds'.format(default_retry_after))
-                    time.sleep(default_retry_after)
-
-
-        else:
-            response = call()
+        headers['User-agent'] = 'Open Targets Python Client/%s' % str(__version__)
+        response = self.session.request(method,
+                                    self._build_url(endpoint),
+                                    params=params,
+                                    json=data,
+                                    headers=headers,
+                                    **kwargs)
 
         response.raise_for_status()
         return response
-
-    def _update_token(self, force = False):
-        """
-        Update token when expired
-        """
-        if self.token and not force:
-            token_valid_response = self._make_request('/platform/public/auth/validate_token',
-                                                       headers={'Auth-Token':self.token})
-            if token_valid_response.status_code == 200:
-                return
-            elif token_valid_response.status_code == 419:
-                pass
-            else:
-                token_valid_response.raise_for_status()
-
-        self.token = self.get_token()
 
     def _get_remote_api_specs(self):
         """
@@ -561,7 +423,8 @@ class IterableResult(object):
                 self._kwargs['size']=1000
         except:
             self.total = len(self._data)
-        return self
+        finally:
+            return self
 
     def filter(self, **kwargs):
         """
@@ -588,7 +451,7 @@ class IterableResult(object):
             AttributeError: if HTTP method is not supported
         """
         if self.method == HTTPMethods.GET:
-            return self.conn.get(*self._args, params=self._kwargs)
+            return self.conn.get(*(self._args), params=self._kwargs)
         elif self.method == HTTPMethods.POST:
             return self.conn.post(*self._args, data=self._kwargs)
         else:
@@ -608,7 +471,7 @@ class IterableResult(object):
                 self._kwargs['no_cache']='true'
                 self._kwargs['size'] = 1000
                 call_output = self._make_call()
-                if (not call_output.data):
+                if not call_output.data:
                     raise StopIteration
                 if 'next_' in call_output.info:
                     self._search_after_last = call_output.info.next_
@@ -633,8 +496,8 @@ class IterableResult(object):
 
     def __str__(self):
         try:
-            return_str = '{} Results found'.format(self.info.total)
-            if  self._kwargs:
+            return_str = '{} Results found'.format(self.total)
+            if self._kwargs:
                 return_str+=' | parameters: {}'.format(self._kwargs)
             return return_str
         except:
