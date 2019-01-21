@@ -25,6 +25,7 @@ class OpenTargetsClient(object):
     _get_disease = '/platform/private/disease'
     _get_target = '/platform/private/target'
     _stats_endpoint = '/platform/public/utils/stats'
+    _metrics_endpoint = '/platform/public/utils/metrics'
     _relation_target_endpoint = '/platform/private/relation/target'
     _relation_disease_endpoint = '/platform/private/relation/disease'
 
@@ -318,4 +319,15 @@ class OpenTargetsClient(object):
         """
         result = IterableResult(self.conn)
         result(self._stats_endpoint)
+        return result
+
+    def get_metrics(self, **kwargs):
+        """
+        Returns metrics about the data served by the REST API
+
+        Returns:
+            IterableResult: Result of the query
+        """
+        result = IterableResult(self.conn)
+        result(self._metrics_endpoint)
         return result
