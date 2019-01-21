@@ -3,6 +3,10 @@
 Changelog
 =========
 
+3.1.14
+------
+- two new endpoints through the client as get_target and get_disease
+
 3.1.0
 -----
 - added SSL ceritificate customisation
