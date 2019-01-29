@@ -22,7 +22,10 @@ class OpenTargetsClient(object):
     _get_associations_endpoint = '/platform/public/association'
     _filter_evidence_endpoint = '/platform/public/evidence/filter'
     _get_evidence_endpoint = '/platform/public/evidence'
+    _get_disease = '/platform/private/disease'
+    _get_target = '/platform/private/target'
     _stats_endpoint = '/platform/public/utils/stats'
+    _metrics_endpoint = '/platform/public/utils/metrics'
     _relation_target_endpoint = '/platform/private/relation/target'
     _relation_disease_endpoint = '/platform/private/relation/disease'
 
@@ -160,6 +163,38 @@ class OpenTargetsClient(object):
         result(self._get_evidence_endpoint, **kwargs)
         return result
 
+    def get_target(self, target_id, **kwargs):
+        """
+        Retrieve a specific target object from the REST API provided its ID
+
+        Args:
+            target_id: Ensembl ID
+        Keyword Args:
+            **kwargs: are passed as other parameters to the /private/target method of the REST API
+
+        Returns:
+             IterableResult: Result of the query
+        """
+        result = IterableResult(self.conn)
+        result(self._get_target + '/' + target_id, **kwargs)
+        return result
+
+    def get_disease(self, disease_id, **kwargs):
+        """
+        Retrieve a specific disease object from the REST API provided its ID
+
+        Args:
+            evidence_id: OT disease ID (EFO, Orphanet, ...)
+        Keyword Args:
+            **kwargs: are passed as other parameters to the /private/disease method of the REST API
+
+        Returns:
+             IterableResult: Result of the query
+        """
+        result = IterableResult(self.conn)
+        result(self._get_disease + '/' + disease_id, **kwargs)
+        return result
+
     def filter_evidence(self,**kwargs):
         """
         Retrieve a set of evidence by applying a set of filters
@@ -284,4 +319,15 @@ class OpenTargetsClient(object):
         """
         result = IterableResult(self.conn)
         result(self._stats_endpoint)
+        return result
+
+    def get_metrics(self, **kwargs):
+        """
+        Returns metrics about the data served by the REST API
+
+        Returns:
+            IterableResult: Result of the query
+        """
+        result = IterableResult(self.conn)
+        result(self._metrics_endpoint)
         return result
