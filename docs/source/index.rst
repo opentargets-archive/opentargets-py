@@ -3,16 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-====================================================
-opentargets - Python client for targetvalidation.org
-====================================================
+=====================================================
+opentargets - Python client for `Open Targets Platform`_
+=====================================================
 
-**opentargets** is the official python client for the `Open Targets REST API`_ at `api.opentargets.io`_
+**opentargets** is the official python client for the `Open Targets REST API`_.
 
-This client allows you to query the API automatically taking care of handling all
-the calls and returning data in a pythonic way.
+This client allows you to query the API automatically handling all the calls and returning data in a pythonic way.
 
-Main advantages of using the client versus querying the REST API directly
+Main advantages of using the client versus querying the REST API directly:
 
 - Include wrappers for all public methods, with query validation
 - Tools for the most common calls (E.g. get data for a target gene symbol even if you do not know its Ensembl Gene Id)
@@ -24,26 +23,18 @@ Main advantages of using the client versus querying the REST API directly
 - Experimental HTTP2 support for better performance (beware the client library is in alpha)
 
 
-This client is supported for Python 3.5 and upper.
-Works on lower version (including python 2.7) on a best effort basis.
-Take a look at the :ref:`tutorial` to have an idea of what you can do.
+This client is supported for Python 3.5 and higher.
+Works with lower versions (including python 2.7) on a best effort basis.
+Take a look at the :ref:`tutorial` to get an idea of what you can do.
 
-.. _Open Targets REST API: https://www.targetvalidation.org/documentation/api
+.. _Open Targets REST API: https://api.opentargets.io/v3/platform/docs/swagger-ui
 .. _targetvalidation.org: https://www.targetvalidation.org
+.. _Open Targets Platform: https://www.targetvalidation.org
 
-License
+Support
 -------
 
-Apache 2.0
-
-
-Contact
--------
-
-- Author: Andrea Pierleoni (andreap at ebi dot ac dot uk)
-- Support: Open Targets Support (support@targetvalidation.org)
-
-
+Open Targets Support (support@targetvalidation.org)
 
 Installation
 ------------
@@ -72,3 +63,24 @@ Documentation
    low_level_api
    modules
    history
+   
+   
+Copyright
+---------
+
+Copyright 2014-2019 Biogen, Celgene Corporation, EMBL - European Bioinformatics Institute, GlaxoSmithKline, Sanofi, Takeda Pharmaceutical Company and Wellcome Sanger Institute
+
+This software was developed as part of the Open Targets project. For more information please see: http://www.opentargets.org
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
