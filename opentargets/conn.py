@@ -157,7 +157,8 @@ class Connection(object):
                  port=443,
                  api_version='v3',
                  verify = True,
-                 proxies = {}
+                 proxies = {},
+                 auth = None
                  ):
         """
         Args:
@@ -165,6 +166,7 @@ class Connection(object):
             port (int): port to use for connection to the API
             api_version (str): api version to point to, default to 'latest'
             verify (bool): sets SSL verification for Request session, accepts True, False or a path to a certificate
+            auth (AuthBase): sets the custom authentication object to use for requests made to the API. Should be one of the built in options provided by the reqests package, or a subclass of requests.auth.AuthBase.
         """
         self._logger = logging.getLogger(__name__)
         self.host = host
@@ -173,6 +175,7 @@ class Connection(object):
         session= requests.Session()
         session.verify = verify
         session.proxies = proxies
+        session.auth = auth
         retry_policies = Retry(total=10,
                                read=10,
                                connect=10,
