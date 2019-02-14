@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-=====================================================
-opentargets - Python client for `Open Targets Platform`_
-=====================================================
+========================================================================
+opentargets-py - Python client for the `Open Targets Platform`_ REST API
+========================================================================
 
-**opentargets** is the official python client for the `Open Targets REST API`_.
+**opentargets-py** is the official python client for the `Open Targets REST API`_.
 
 This client allows you to query the API automatically handling all the calls and returning data in a pythonic way.
 
@@ -28,13 +28,7 @@ Works with lower versions (including python 2.7) on a best effort basis.
 Take a look at the :ref:`tutorial` to get an idea of what you can do.
 
 .. _Open Targets REST API: https://platform-api.opentargets.io/v3/platform/docs/swagger-ui
-.. _targetvalidation.org: https://www.targetvalidation.org
 .. _Open Targets Platform: https://www.targetvalidation.org
-
-Support
--------
-
-Open Targets Support (support@targetvalidation.org)
 
 Installation
 ------------
@@ -64,7 +58,11 @@ Documentation
    modules
    history
    
-   
+Support
+-------
+
+Open Targets Support (support@targetvalidation.org)
+
 Copyright
 ---------
 
