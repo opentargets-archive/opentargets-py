@@ -138,7 +138,9 @@ class OpenTargetClientTest(unittest.TestCase):
         self.assertGreater(len(response), 0)
         result = next(response)
         self.assertEqual(result['subject']['label'], target_symbol)
-        self.assertEqual(result['object']['label'], 'KRAS')
+        #these are both very similar so depending on minor data changes
+        #either of these may be true
+        self.assertIn(result['object']['label'], ('KRAS','PIK3CA'))
 
     def testGetSimilarDisease(self):
         disease_label = 'ulcerative colitis'

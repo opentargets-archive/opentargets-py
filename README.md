@@ -1,5 +1,5 @@
 # opentargets-py
-Python client for the Open Targets REST API at api.opentargets.io
+Python client for the Open Targets REST API at platform-api.opentargets.io
 [![Build Status](https://travis-ci.com/opentargets/opentargets-py.svg?branch=master)](https://travis-ci.com/opentargets/opentargets-py)
 [![Documentation Status](https://readthedocs.org/projects/opentargets/badge/?version=latest)](http://opentargets.readthedocs.io/en/latest/?badge=latest)
 

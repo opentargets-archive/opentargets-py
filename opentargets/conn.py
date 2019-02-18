@@ -153,7 +153,7 @@ class Connection(object):
     Handler for connection and calls to the Open Targets Validation Platform REST API
     """
     def __init__(self,
-                 host='https://api.opentargets.io',
+                 host='https://platform-api.opentargets.io',
                  port=443,
                  api_version='v3',
                  verify = True,

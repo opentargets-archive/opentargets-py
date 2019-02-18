@@ -27,7 +27,7 @@ This client is supported for Python 3.5 and higher.
 Works with lower versions (including python 2.7) on a best effort basis.
 Take a look at the :ref:`tutorial` to get an idea of what you can do.
 
-.. _Open Targets REST API: https://api.opentargets.io/v3/platform/docs/swagger-ui
+.. _Open Targets REST API: https://platform-api.opentargets.io/v3/platform/docs/swagger-ui
 .. _Open Targets Platform: https://www.targetvalidation.org
 
 Installation
