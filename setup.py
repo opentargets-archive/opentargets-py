@@ -11,6 +11,7 @@ except ImportError:
 with open('opentargets/version.py') as fv:
     exec(fv.read())
 
+pkg_dir = os.path.dirname(__file__)
 long_description = open(os.path.join(pkg_dir, "README.md")).read()
 
 setup(name=__pkgname__,
