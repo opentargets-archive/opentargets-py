@@ -136,7 +136,7 @@ class OpenTargetsClient(object):
         """
         if not isinstance(disease, str):
             raise AttributeError('disease must be of type str')
-        results = self.filter_associations(disease=disease)
+        results = self.filter_associations(disease=disease, **kwargs)
         if not results:
             search_result = next(self.search(disease, size=1, filter='disease'))
             if not search_result:
