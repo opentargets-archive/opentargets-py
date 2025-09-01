@@ -29,7 +29,7 @@ setup(name=__pkgname__,
     install_requires=[
         'requests<3.0',
         'cachecontrol==0.11.6',
-        'future==0.16.0',
+        'future==1.0.0',
         'PyYAML',
         'addict'],
     extras_require={
